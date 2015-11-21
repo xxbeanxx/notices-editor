@@ -57,11 +57,16 @@
             <MenuItem mnemonicParsing="false" text="Unselect All" />
           </items>
         </Menu>
-        <Menu mnemonicParsing="false" text="Help">
+        <Menu mnemonicParsing="false" text="Tools">
           <items>
-            <MenuItem fx:id="helpAboutMenuItem" mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About MyHelloApp" />
+            <MenuItem fx:id="toolsOpenSampleNoticesMenuItem" mnemonicParsing="false" onAction="#toolsOpenSampleNoticesMenuItemAction" text="Open sample Notices.xml" />
           </items>
         </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+               <items>
+                  <MenuItem fx:id="helpAboutMenuItem1" mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About MyHelloApp" />
+               </items>
+            </Menu>
       </menus>
     </MenuBar>
       <SplitPane dividerPositions="0.15" VBox.vgrow="ALWAYS">

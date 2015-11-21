@@ -1,7 +1,10 @@
 package com.github.xxbeanxx.noticeseditor;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
@@ -108,6 +111,9 @@ public class FXMLDocumentController {
     private MenuItem helpAboutMenuItem;
 
     @FXML
+    private MenuItem toolsOpenSampleNoticesMenuItem;
+    
+    @FXML
     private MenuItem fileCloseMenuItem;
 
     @FXML
@@ -152,7 +158,7 @@ public class FXMLDocumentController {
     }
 
     @FXML
-    void fileOpenMenuItemAction(ActionEvent event) throws JAXBException {
+    void fileOpenMenuItemAction(ActionEvent event) throws JAXBException, FileNotFoundException {
         final FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(XML_EXTENSION_FILTER);
 
@@ -160,8 +166,9 @@ public class FXMLDocumentController {
         
         if (file != null) {
             this.openFile = file;
+            final List<Notice> notices = loadNotices(new FileInputStream(file));
+            
             leftPane.setDisable(false);
-            final List<Notice> notices = loadNotices(file);
             noticesListView.setItems(FXCollections.observableList(notices));
         }
     }
@@ -202,6 +209,15 @@ public class FXMLDocumentController {
         alert.showAndWait();
     }
 
+    @FXML
+    void toolsOpenSampleNoticesMenuItemAction(ActionEvent event) throws JAXBException {
+    	final InputStream inputStream = getClass().getResourceAsStream("/sample-notices.xml");
+    	final List<Notice> notices = loadNotices(inputStream);
+    	
+        leftPane.setDisable(false);
+        noticesListView.setItems(FXCollections.observableList(notices));
+    }
+    
     @FXML
     void addNoticeButtonMouseClicked(ActionEvent event) {
         final Alert alert = new Alert(Alert.AlertType.ERROR, "Not yet implemented.");
@@ -262,10 +278,10 @@ public class FXMLDocumentController {
         }
     }
 
-    private List<Notice> loadNotices(File file) throws JAXBException {
+    private List<Notice> loadNotices(InputStream inputStream) throws JAXBException {
         final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
         final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        final Notices noticesRoot = (Notices) unmarshaller.unmarshal(file);
+        final Notices noticesRoot = (Notices) unmarshaller.unmarshal(inputStream);
         return noticesRoot.getNotice();
     }
     
