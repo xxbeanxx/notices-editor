@@ -26,19 +26,19 @@
                         <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="fileCloseMenuItem" mnemonicParsing="false" onAction="#fileCloseMenuItemAction" text="Close">
+            <MenuItem fx:id="fileCloseMenuItem" disable="true" mnemonicParsing="false" onAction="#fileCloseMenuItemAction" text="Close">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
-            <MenuItem fx:id="fileSaveMenuItem" mnemonicParsing="false" onAction="#fileSaveMenuItemAction" text="Save">
+            <MenuItem fx:id="fileSaveMenuItem" disable="true" mnemonicParsing="false" onAction="#fileSaveMenuItemAction" text="Save">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
-            <MenuItem fx:id="fileSaveAsMenuItem" mnemonicParsing="false" onAction="#fileSaveAsMenuItemAction" text="Save As…">
+            <MenuItem fx:id="fileSaveAsMenuItem" disable="true" mnemonicParsing="false" onAction="#fileSaveAsMenuItemAction" text="Save As…">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator></MenuItem>
-            <MenuItem fx:id="fileRevertMenuItem" mnemonicParsing="false" onAction="#fileRevertMenuItemAction" text="Revert" />
+            <MenuItem fx:id="fileRevertMenuItem" disable="true" mnemonicParsing="false" onAction="#fileRevertMenuItemAction" text="Revert" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem fx:id="fileQuitMenuItem" mnemonicParsing="false" onAction="#fileQuitMenuItemAction" text="Quit" />
           </items>
@@ -75,7 +75,14 @@
                <children>
                   <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefViewportWidth="379.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" SplitPane.resizableWithParent="false" VBox.vgrow="ALWAYS">
                      <content>
-                        <ListView fx:id="noticesListView" SplitPane.resizableWithParent="false" />
+                        <ListView fx:id="noticesListView" SplitPane.resizableWithParent="false">
+                           <contextMenu>
+                              <ContextMenu>
+                                <items>
+                                  <MenuItem mnemonicParsing="false" onAction="#deleteContextMenuItemAction" text="Delete" />
+                                </items>
+                              </ContextMenu>
+                           </contextMenu></ListView>
                      </content>
                   </ScrollPane>
                   <Button fx:id="addNoticeButton" mnemonicParsing="false" onMouseClicked="#addNoticeButtonMouseClicked" text="+" textAlignment="CENTER" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="7.0" />
