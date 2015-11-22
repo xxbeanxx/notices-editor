@@ -12,214 +12,221 @@
 <?import javafx.scene.text.*?>
 
 <VBox fx:id="root" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.xxbeanxx.noticeseditor.FXMLDocumentController">
-  <children>
-    <MenuBar VBox.vgrow="NEVER">
-      <menus>
-        <Menu mnemonicParsing="false" text="File">
-          <items>
-            <MenuItem fx:id="fileNewMenuItem" mnemonicParsing="false" onAction="#fileNewMenuItemAction" text="New">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator></MenuItem>
-            <MenuItem fx:id="fileOpenMenuItem" mnemonicParsing="false" onAction="#fileOpenMenuItemAction" text="Open…">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator></MenuItem>
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="fileCloseMenuItem" disable="true" mnemonicParsing="false" onAction="#fileCloseMenuItemAction" text="Close">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator></MenuItem>
-            <MenuItem fx:id="fileSaveMenuItem" disable="true" mnemonicParsing="false" onAction="#fileSaveMenuItemAction" text="Save">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator></MenuItem>
-            <MenuItem fx:id="fileSaveAsMenuItem" disable="true" mnemonicParsing="false" onAction="#fileSaveAsMenuItemAction" text="Save As…">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator></MenuItem>
-            <MenuItem fx:id="fileRevertMenuItem" disable="true" mnemonicParsing="false" onAction="#fileRevertMenuItemAction" text="Revert" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="fileQuitMenuItem" mnemonicParsing="false" onAction="#fileQuitMenuItemAction" text="Quit" />
-          </items>
-        </Menu>
-        <Menu disable="true" mnemonicParsing="false" text="Edit">
-          <items>
-            <MenuItem mnemonicParsing="false" text="Undo" />
-            <MenuItem mnemonicParsing="false" text="Redo" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Cut" />
-            <MenuItem mnemonicParsing="false" text="Copy" />
-            <MenuItem mnemonicParsing="false" text="Paste" />
-            <MenuItem mnemonicParsing="false" text="Delete" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Select All" />
-            <MenuItem mnemonicParsing="false" text="Unselect All" />
-          </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Tools">
-          <items>
-            <MenuItem fx:id="toolsOpenSampleNoticesMenuItem" mnemonicParsing="false" onAction="#toolsOpenSampleNoticesMenuItemAction" text="Open sample Notices.xml" />
-          </items>
-        </Menu>
-            <Menu mnemonicParsing="false" text="Help">
-               <items>
-                  <MenuItem fx:id="helpAboutMenuItem1" mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About MyHelloApp" />
-               </items>
-            </Menu>
-      </menus>
-    </MenuBar>
-      <SplitPane dividerPositions="0.15" VBox.vgrow="ALWAYS">
-        <items>
-            <AnchorPane fx:id="leftPane" disable="true" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="200.0" SplitPane.resizableWithParent="false">
-               <children>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefViewportWidth="379.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" SplitPane.resizableWithParent="false" VBox.vgrow="ALWAYS">
-                     <content>
-                        <ListView fx:id="noticesListView" SplitPane.resizableWithParent="false">
-                           <contextMenu>
-                              <ContextMenu>
-                                <items>
-                                  <MenuItem mnemonicParsing="false" onAction="#deleteContextMenuItemAction" text="Delete" />
-                                </items>
-                              </ContextMenu>
-                           </contextMenu></ListView>
-                     </content>
-                  </ScrollPane>
-                  <Button fx:id="addNoticeButton" mnemonicParsing="false" onMouseClicked="#addNoticeButtonMouseClicked" text="+" textAlignment="CENTER" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="7.0" />
-               </children>
-            </AnchorPane>
-            <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
-               <content>
-                  <VBox fx:id="rightPane" disable="true" spacing="14.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <children>
-                        <VBox>
-                           <children>
-                              <Label text="Title (en)">
-                                 <font>
-                                    <Font name="System Bold" size="13.0" />
-                                 </font>
-                              </Label>
-                              <TextField fx:id="englishTitleTextField" />
-                           </children>
-                        </VBox>
-                        <VBox layoutX="17.0" layoutY="17.0">
-                           <children>
-                              <Label text="Title (fr)">
-                                 <font>
-                                    <Font name="System Bold" size="13.0" />
-                                 </font>
-                              </Label>
-                              <TextField fx:id="frenchTitleTextField" />
-                           </children>
-                        </VBox>
-                        <VBox>
-                           <children>
-                              <Label text="Notice (en)">
-                                 <font>
-                                    <Font name="System Bold" size="13.0" />
-                                 </font>
-                              </Label>
-                              <AnchorPane>
-                                 <children>
-                                    <HTMLEditor fx:id="englishTextHtmlEditor" htmlText="" minHeight="250.0" style="-fx-font-family: sans-serif;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />
-                                    <HBox spacing="7.0" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="14.0">
-                                       <children>
-                                          <Button fx:id="englishTextCleanSourceButton" mnemonicParsing="false" onAction="#englishTextCleanSourceButtonAction" text="clean" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="7.0">
-                                             <font>
-                                                <Font size="9.0" />
-                                             </font>
-                                          </Button>
-                                          <Button fx:id="englishTextEditSourceButton1" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#englishTextEditSourceButtonAction" text="view source">
-                                             <font>
-                                                <Font size="9.0" />
-                                             </font>
-                                          </Button>
-                                       </children>
-                                    </HBox>
-                                 </children>
-                              </AnchorPane>
-                           </children>
-                        </VBox>
-                        <VBox layoutX="17.0" layoutY="111.0">
-                           <children>
-                              <Label text="Notice (fr)">
-                                 <font>
-                                    <Font name="System Bold" size="13.0" />
-                                 </font>
-                              </Label>
-                              <AnchorPane>
-                                 <children>
-                                    <HTMLEditor fx:id="frenchTextHtmlEditor" htmlText="" minHeight="250.0" style="-fx-font-family: sans-serif;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />
-                                    <HBox spacing="7.0" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="14.0">
-                                       <children>
-                                          <Button fx:id="frenchTextCleanSourceButton" mnemonicParsing="false" onAction="#frenchTextCleanSourceButtonAction" text="clean" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="7.0">
-                                             <font>
-                                                <Font size="9.0" />
-                                             </font>
-                                          </Button>
-                                          <Button fx:id="frenchTextEditSourceButton1" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#frenchTextEditSourceButtonAction" text="view source">
-                                             <font>
-                                                <Font size="9.0" />
-                                             </font>
-                                          </Button>
-                                       </children>
-                                    </HBox>
-                                 </children>
-                              </AnchorPane>
-                           </children>
-                        </VBox>
-                        <HBox fillHeight="false" spacing="7.0">
-                           <children>
-                              <VBox>
-                                 <children>
-                                    <Label text="Start Date">
-                                        <font>
-                                           <Font name="System Bold" size="13.0" />
-                                        </font>
-                                    </Label>
-                                    <DatePicker fx:id="startDateDatePicker" />
-                                 </children>
-                              </VBox>
-                              <VBox layoutX="10.0" layoutY="10.0">
-                                 <children>
-                                    <Label text="End Date">
-                                       <font>
-                                          <Font name="System Bold" size="13.0" />
-                                       </font>
-                                    </Label>
-                                    <DatePicker fx:id="endDateDatePicker" />
-                                 </children>
-                              </VBox>
-                              <VBox layoutX="10.0" layoutY="10.0">
-                                 <children>
-                                    <Label text="Displayed Date">
-                                       <font>
-                                          <Font name="System Bold" size="13.0" />
-                                       </font>
-                                    </Label>
-                                    <DatePicker fx:id="displayedDateDatePicker" />
-                                 </children>
-                              </VBox>
-                              <VBox layoutX="420.0" layoutY="10.0">
-                                 <children>
-                                    <Label text="Creation Date">
-                                       <font>
-                                          <Font name="System Bold" size="13.0" />
-                                       </font>
-                                    </Label>
-                                    <DatePicker fx:id="creationDateDatePicker" editable="false" />
-                                 </children>
-                              </VBox>
-                           </children>
-                        </HBox>
-                     </children>
-                     <padding>
-                        <Insets bottom="7.0" left="7.0" right="7.0" top="7.0" />
-                     </padding>
-                  </VBox>
-               </content>
-            </ScrollPane>
-        </items>
-      </SplitPane>
-  </children>
+	<children>
+		<MenuBar VBox.vgrow="NEVER">
+			<menus>
+				<Menu mnemonicParsing="false" text="File">
+					<items>
+						<MenuItem fx:id="fileNewMenuItem" mnemonicParsing="false" onAction="#fileNewMenuItemAction" text="New">
+							<accelerator>
+								<KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+							</accelerator>
+						</MenuItem>
+						<MenuItem fx:id="fileOpenMenuItem" mnemonicParsing="false" onAction="#fileOpenMenuItemAction" text="Open…">
+							<accelerator>
+								<KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+							</accelerator>
+						</MenuItem>
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem fx:id="fileCloseMenuItem" disable="true" mnemonicParsing="false" onAction="#fileCloseMenuItemAction" text="Close">
+							<accelerator>
+								<KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+							</accelerator>
+						</MenuItem>
+						<MenuItem fx:id="fileSaveMenuItem" disable="true" mnemonicParsing="false" onAction="#fileSaveMenuItemAction" text="Save">
+							<accelerator>
+								<KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+							</accelerator>
+						</MenuItem>
+						<MenuItem fx:id="fileSaveAsMenuItem" disable="true" mnemonicParsing="false" onAction="#fileSaveAsMenuItemAction" text="Save As…">
+							<accelerator>
+								<KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+							</accelerator>
+						</MenuItem>
+						<MenuItem fx:id="fileRevertMenuItem" disable="true" mnemonicParsing="false" onAction="#fileRevertMenuItemAction" text="Revert" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem fx:id="fileQuitMenuItem" mnemonicParsing="false" onAction="#fileQuitMenuItemAction" text="Quit" />
+					</items>
+				</Menu>
+				<Menu disable="true" mnemonicParsing="false" text="Edit">
+					<items>
+						<MenuItem mnemonicParsing="false" text="Undo" />
+						<MenuItem mnemonicParsing="false" text="Redo" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem mnemonicParsing="false" text="Cut" />
+						<MenuItem mnemonicParsing="false" text="Copy" />
+						<MenuItem mnemonicParsing="false" text="Paste" />
+						<MenuItem mnemonicParsing="false" text="Delete" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem mnemonicParsing="false" text="Select All" />
+						<MenuItem mnemonicParsing="false" text="Unselect All" />
+					</items>
+				</Menu>
+				<Menu mnemonicParsing="false" text="Tools">
+					<items>
+						<MenuItem fx:id="toolsOpenSampleNoticesMenuItem" mnemonicParsing="false" onAction="#toolsOpenSampleNoticesMenuItemAction" text="Open sample Notices.xml" />
+						<MenuItem fx:id="toolsPreviewXmlMenuItem" disable="true" mnemonicParsing="false" onAction="#toolsPreviewXmlMenuItemAction" text="Preview XML..." />
+					</items>
+				</Menu>
+				<Menu mnemonicParsing="false" text="Help">
+					<items>
+						<MenuItem fx:id="helpAboutMenuItem" mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About MyHelloApp" />
+					</items>
+				</Menu>
+			</menus>
+		</MenuBar>
+		<SplitPane dividerPositions="0.15" VBox.vgrow="ALWAYS">
+			<items>
+				<AnchorPane fx:id="leftPane" disable="true" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="200.0" SplitPane.resizableWithParent="false">
+					<children>
+						<ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefViewportWidth="379.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" SplitPane.resizableWithParent="false" VBox.vgrow="ALWAYS">
+							<content>
+								<ListView fx:id="noticesListView" SplitPane.resizableWithParent="false">
+									<contextMenu>
+										<ContextMenu>
+											<items>
+												<MenuItem mnemonicParsing="false" onAction="#deleteContextMenuItemAction" text="Delete" />
+											</items>
+										</ContextMenu>
+									</contextMenu>
+								</ListView>
+							</content>
+						</ScrollPane>
+						<Button fx:id="addNoticeButton" mnemonicParsing="false" onMouseClicked="#addNoticeButtonMouseClicked" text="+" textAlignment="CENTER" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="7.0" />
+					</children>
+				</AnchorPane>
+				<ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
+					<content>
+						<VBox fx:id="rightPane" disable="true" spacing="14.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+							<children>
+								<VBox>
+									<children>
+										<Label text="Title (en)">
+											<font>
+												<Font name="System Bold" size="13.0" />
+											</font>
+										</Label>
+										<TextField fx:id="englishTitleTextField" />
+									</children>
+								</VBox>
+								<VBox layoutX="17.0" layoutY="17.0">
+									<children>
+										<Label text="Title (fr)">
+											<font>
+												<Font name="System Bold" size="13.0" />
+											</font>
+										</Label>
+										<TextField fx:id="frenchTitleTextField" />
+									</children>
+								</VBox>
+								<VBox>
+									<children>
+										<Label text="Notice (en)">
+											<font>
+												<Font name="System Bold" size="13.0" />
+											</font>
+										</Label>
+										<AnchorPane>
+											<children>
+												<HTMLEditor fx:id="englishTextHtmlEditor" htmlText="" minHeight="250.0" style="-fx-font-family: sans-serif;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />
+												<HBox spacing="7.0" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="14.0">
+													<children>
+														<Button fx:id="englishTextCleanSourceButton" mnemonicParsing="false" onAction="#englishTextCleanSourceButtonAction" text="clean" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="7.0">
+															<font>
+																<Font size="9.0" />
+															</font>
+														</Button>
+														<Button fx:id="englishTextEditSourceButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#englishTextEditSourceButtonAction" text="view source">
+															<font>
+																<Font size="9.0" />
+															</font>
+														</Button>
+													</children>
+												</HBox>
+											</children>
+										</AnchorPane>
+									</children>
+								</VBox>
+								<VBox layoutX="17.0" layoutY="111.0">
+									<children>
+										<Label text="Notice (fr)">
+											<font>
+												<Font name="System Bold" size="13.0" />
+											</font>
+										</Label>
+										<AnchorPane>
+											<children>
+												<HTMLEditor fx:id="frenchTextHtmlEditor" htmlText="" minHeight="250.0" style="-fx-font-family: sans-serif;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />
+												<HBox spacing="7.0" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="14.0">
+													<children>
+														<Button fx:id="frenchTextCleanSourceButton" mnemonicParsing="false" onAction="#frenchTextCleanSourceButtonAction" text="clean" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="7.0">
+															<font>
+																<Font size="9.0" />
+															</font>
+														</Button>
+														<Button fx:id="frenchTextEditSourceButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#frenchTextEditSourceButtonAction" text="view source">
+															<font>
+																<Font size="9.0" />
+															</font>
+														</Button>
+													</children>
+												</HBox>
+											</children>
+										</AnchorPane>
+									</children>
+								</VBox>
+								<HBox fillHeight="false" spacing="7.0">
+									<children>
+										<VBox>
+											<children>
+												<Label text="Start Date">
+													<font>
+														<Font name="System Bold" size="13.0" />
+													</font>
+												</Label>
+												<DatePicker fx:id="startDateDatePicker" />
+											</children>
+										</VBox>
+										<VBox layoutX="10.0" layoutY="10.0">
+											<children>
+												<Label text="End Date">
+													<font>
+														<Font name="System Bold" size="13.0" />
+													</font>
+												</Label>
+												<DatePicker fx:id="endDateDatePicker" />
+											</children>
+										</VBox>
+										<VBox layoutX="10.0" layoutY="10.0">
+											<children>
+												<Label text="Displayed Date">
+													<font>
+														<Font name="System Bold" size="13.0" />
+													</font>
+												</Label>
+												<DatePicker fx:id="displayedDateDatePicker" />
+											</children>
+										</VBox>
+										<VBox layoutX="420.0" layoutY="10.0">
+											<children>
+												<Label text="Creation Date">
+													<font>
+														<Font name="System Bold" size="13.0" />
+													</font>
+												</Label>
+												<DatePicker fx:id="creationDateDatePicker" editable="false" />
+											</children>
+										</VBox>
+									</children>
+								</HBox>
+							</children>
+							<padding>
+								<Insets bottom="7.0" left="7.0" right="7.0" top="7.0" />
+							</padding>
+						</VBox>
+					</content>
+				</ScrollPane>
+			</items>
+		</SplitPane>
+	</children>
 </VBox>

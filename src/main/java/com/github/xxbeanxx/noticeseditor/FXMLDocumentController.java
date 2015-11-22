@@ -1,24 +1,29 @@
 package com.github.xxbeanxx.noticeseditor;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
+import com.github.xxbeanxx.noticeseditor.bindings.CustomCharacterEscapeHandler;
 import com.github.xxbeanxx.noticeseditor.bindings.Notices;
+import com.github.xxbeanxx.noticeseditor.bindings.NoticesHeader;
 import com.github.xxbeanxx.noticeseditor.bindings.Notices.Notice;
 import com.github.xxbeanxx.noticeseditor.bindings.Notices.Notice.Text;
 import com.github.xxbeanxx.noticeseditor.bindings.Notices.Notice.Title;
@@ -49,106 +54,78 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
+@SuppressWarnings("restriction")
 public class FXMLDocumentController {
 
-    private static final String SOURCE_EDITOR_FXML = "/com/github/xxbeanxx/noticeseditor/FXMLSourceEditor.fxml";
-
 	private static final FileChooser.ExtensionFilter XML_EXTENSION_FILTER = new FileChooser.ExtensionFilter("Notices files (*.xml)", "*.xml");
-    
-    @FXML
-    private ResourceBundle resources;
+
+    @FXML Node root;
+
+    ////////////////////////////////////////////////////////////////////////////
+    //         File menu items
+    ////////////////////////////////////////////////////////////////////////////
+
+    @FXML MenuItem fileNewMenuItem;
+    @FXML MenuItem fileOpenMenuItem;
+    @FXML MenuItem fileSaveMenuItem;
+    @FXML MenuItem fileSaveAsMenuItem;
+    @FXML MenuItem fileCloseMenuItem;
+    @FXML MenuItem fileRevertMenuItem;
+    @FXML MenuItem fileQuitMenuItem;
+
+    ////////////////////////////////////////////////////////////////////////////
+    //         Tools menu items
+    ////////////////////////////////////////////////////////////////////////////
+
+    @FXML MenuItem toolsOpenSampleNoticesMenuItem;
+	@FXML MenuItem toolsPreviewXmlMenuItem;
+
+    ////////////////////////////////////////////////////////////////////////////
+    //         Help menu items
+    ////////////////////////////////////////////////////////////////////////////
+
+    @FXML MenuItem helpAboutMenuItem;
+
+    ////////////////////////////////////////////////////////////////////////////
+    //         Left pane items
+    ////////////////////////////////////////////////////////////////////////////
+
+    @FXML AnchorPane leftPane;
+    @FXML ListView<Notice> noticesListView;
+    @FXML Button addNoticeButton;
+
+    ////////////////////////////////////////////////////////////////////////////
+    //         Right pane items
+    ////////////////////////////////////////////////////////////////////////////
+
+    @FXML VBox rightPane;
+    @FXML TextField englishTitleTextField;
+    @FXML TextField frenchTitleTextField;
+    @FXML HTMLEditor englishTextHtmlEditor;
+    @FXML HTMLEditor frenchTextHtmlEditor;
+    @FXML DatePicker startDateDatePicker;
+    @FXML DatePicker endDateDatePicker;
+    @FXML DatePicker creationDateDatePicker;
+    @FXML DatePicker displayedDateDatePicker;
+    @FXML Button frenchTextEditSourceButton;
+    @FXML Button englishTextEditSourceButton;
+    @FXML Button englishTextCleanSourceButton;
+    @FXML Button frenchTextCleanSourceButton;
+
+    ////////////////////////////////////////////////////////////////////////////
+    //         Other class members
+    ////////////////////////////////////////////////////////////////////////////
+
+    private File currentlyOpenFile;
+
+    private Notices currentlyLoadedNotices;
 
     @FXML
-    private URL location;
-
-    @FXML
-    private Node root;
-    
-    @FXML
-    private MenuItem fileOpenMenuItem;
-
-    @FXML
-    private Button addNoticeButton;
-
-    @FXML
-    private MenuItem fileNewMenuItem;
-
-    @FXML
-    private MenuItem fileQuitMenuItem;
-
-    @FXML
-    private DatePicker displayedDateDatePicker;
-
-    @FXML
-    private MenuItem fileSaveAsMenuItem;
-
-    @FXML
-    private TextField frenchTitleTextField;
-
-    @FXML
-    private HTMLEditor frenchTextHtmlEditor;
-
-    @FXML
-    private DatePicker endDateDatePicker;
-
-    @FXML
-    private DatePicker creationDateDatePicker;
-
-    @FXML
-    private Button frenchTextEditSourceButton;
-
-    @FXML
-    private ListView<Notice> noticesListView;
-
-    @FXML
-    private MenuItem fileSaveMenuItem;
-
-    @FXML
-    private HTMLEditor englishTextHtmlEditor;
-
-    @FXML
-    private TextField englishTitleTextField;
-
-    @FXML
-    private MenuItem fileRevertMenuItem;
-
-    @FXML
-    private MenuItem helpAboutMenuItem;
-
-    @FXML
-    private MenuItem toolsOpenSampleNoticesMenuItem;
-    
-    @FXML
-    private MenuItem fileCloseMenuItem;
-
-    @FXML
-    private Button englishTextEditSourceButton;
-
-    @FXML
-    private Button englishTextCleanSourceButton;
-    
-    @FXML
-    private Button frenchTextCleanSourceButton;
-    
-    @FXML
-    private DatePicker startDateDatePicker;
-
-    @FXML
-    private AnchorPane leftPane;
-    
-    @FXML
-    private VBox rightPane;
-
-    private File openFile;
-    
-    private boolean isDitry;
-    
-    @FXML
-    void initialize() {
+    public void initialize() {
         this.noticesListView.setCellFactory((ListView<Notice> listView) -> {
             return new NoticeListCell();
         });
-        
+
         this.noticesListView.getSelectionModel().selectedItemProperty().addListener(
             (ObservableValue<? extends Notice> observableValue, Notice oldNotice, Notice newNotice) -> {
                 updateEditorPane(newNotice);
@@ -157,143 +134,114 @@ public class FXMLDocumentController {
     }
 
     @FXML
-    void deleteContextMenuItemAction(ActionEvent event) {
+    public void deleteContextMenuItemAction(ActionEvent event) {
         new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
     }
-    
+
+    ////////////////////////////////////////////////////////////////////////////
+    //         File menu action handlers
+    ////////////////////////////////////////////////////////////////////////////
+
     @FXML
-    void fileNewMenuItemAction(ActionEvent event) {
+    public void fileNewMenuItemAction(ActionEvent event) {
         new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
     }
 
     @FXML
-    void fileOpenMenuItemAction(ActionEvent event) {
+    public void fileOpenMenuItemAction(ActionEvent event) {
         openExistingFile();
     }
 
 	@FXML
-    void fileCloseMenuItemAction(ActionEvent event) {
-    	closeOpenFile();
+	public void fileSaveMenuItemAction(ActionEvent event) {
+        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
     }
+
+    @FXML
+    public void fileSaveAsMenuItemAction(ActionEvent event) {
+        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+    }
+
+    @FXML
+    public void fileCloseMenuItemAction(ActionEvent event) {
+		closeOpenFile();
+	}
 
 	@FXML
-    void fileSaveMenuItemAction(ActionEvent event) {
+	public void fileRevertMenuItemAction(ActionEvent event) throws JAXBException {
         new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
     }
 
     @FXML
-    void fileSaveAsMenuItemAction(ActionEvent event) {
+    public void fileQuitMenuItemAction(ActionEvent event) {
         new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
     }
 
-    @FXML
-    void fileRevertMenuItemAction(ActionEvent event) throws JAXBException {
-        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    //         Tools menu action handlers
+    ////////////////////////////////////////////////////////////////////////////
 
     @FXML
-    void fileQuitMenuItemAction(ActionEvent event) {
-        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
-    }
-
-    @FXML
-    void helpAboutMenuItemAction(ActionEvent event) {
-        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
-    }
-
-    @FXML
-    void toolsOpenSampleNoticesMenuItemAction(ActionEvent event) {
+    public void toolsOpenSampleNoticesMenuItemAction(ActionEvent event) {
     	openSampleFile();
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    //         About menu action handlers
+    ////////////////////////////////////////////////////////////////////////////
+
 	@FXML
-    void englishTextCleanSourceButtonAction(ActionEvent event) throws IOException {
-        final String htmlText = englishTextHtmlEditor.getHtmlText();
+	public void toolsPreviewXmlMenuItemAction(ActionEvent event) throws IOException, JAXBException {
+		final FXMLLoader fxmlLoader = getSourceEditorLoader();
+		final Parent parent = fxmlLoader.load();
+		final Stage stage = getSourceEditorStage(parent, "Preview XML...");
+		final FXMLSourceEditorController fxmlSourceEditorController = fxmlLoader.getController();
+		final String text = marshallNotices(this.currentlyLoadedNotices);
+		fxmlSourceEditorController.setText(text);
+	    stage.showAndWait();
+	}
+
+	@FXML
+	public void helpAboutMenuItemAction(ActionEvent event) {
+	    new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+	}
+
+	@FXML
+	public void englishTextCleanSourceButtonAction(ActionEvent event) throws IOException {
+        final String htmlText = this.englishTextHtmlEditor.getHtmlText();
 		final String cleanHtmlText = cleanHtml(htmlText);
-		englishTextHtmlEditor.setHtmlText(cleanHtmlText);
+		this.englishTextHtmlEditor.setHtmlText(cleanHtmlText);
     }
 
     @FXML
-    void frenchTextCleanSourceButtonAction(ActionEvent event) {
-        final String htmlText = frenchTextHtmlEditor.getHtmlText();
-		String cleanHtmlText = cleanHtml(htmlText);
-		frenchTextHtmlEditor.setHtmlText(cleanHtmlText);
-    }
+    public void englishTextEditSourceButtonAction() {
+		try {
+			showEditSourceWindow("View Source: english", this.englishTextHtmlEditor);
+		}
+		catch (final IOException ioException) {
+			alertException(ioException);
+		}
+	}
 
-    @FXML // TODO remove duplicate code
-    void englishTextEditSourceButtonAction(ActionEvent event) {
-        final Class<? extends FXMLDocumentController> clazz = getClass();
-		final URL url = clazz.getResource(SOURCE_EDITOR_FXML);
-		final FXMLLoader fxmlLoader = new FXMLLoader(url);
-        final Stage stage = new Stage(StageStyle.UTILITY);
-        
-        try {
-        	final Parent parent = fxmlLoader.load();
-        	final Scene scene = new Scene(parent);
-        	stage.setScene(scene);
-        }
-        catch (final IOException ioException) {
-        	alertException(ioException);
-        	return;
-        }
-        
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("View Source: english");
-
-        final FXMLSourceEditorController fxmlSourceEditorController = fxmlLoader.<FXMLSourceEditorController>getController();
-        final String htmlText = englishTextHtmlEditor.getHtmlText();
-        
-        String cleanHtmlText = cleanHtml(htmlText);
-		fxmlSourceEditorController.setText(cleanHtmlText);
-
-        stage.showAndWait();
-        
-        final FXMLSourceEditorController.ReturnValue returnValue = fxmlSourceEditorController.getReturnValue();
-        if (returnValue == FXMLSourceEditorController.ReturnValue.OK) {
-            final String text = fxmlSourceEditorController.getText();
-            cleanHtmlText = cleanHtml(text);
-			englishTextHtmlEditor.setHtmlText(cleanHtmlText);
-        }
-    }
-
-    @FXML // TODO remove duplicate code
-    void frenchTextEditSourceButtonAction(ActionEvent event) {
-        final Class<? extends FXMLDocumentController> clazz = getClass();
-		final URL url = clazz.getResource(SOURCE_EDITOR_FXML);
-		final FXMLLoader fxmlLoader = new FXMLLoader(url);
-        final Stage stage = new Stage(StageStyle.UTILITY);
-
-        try {
-        	final Parent parent = fxmlLoader.load();
-        	final Scene scene = new Scene(parent);
-        	stage.setScene(scene);
-        }
-        catch (final IOException ioException) {
-        	alertException(ioException);
-        	return;
-        }
-        
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("View Source: french");
-
-        final FXMLSourceEditorController fxmlSourceEditorController = fxmlLoader.<FXMLSourceEditorController>getController();
-        final String htmlText = frenchTextHtmlEditor.getHtmlText();
-        
-        String cleanHtmlText = cleanHtml(htmlText);
-		fxmlSourceEditorController.setText(cleanHtmlText);
-
-        stage.showAndWait();
-        
-        final FXMLSourceEditorController.ReturnValue returnValue = fxmlSourceEditorController.getReturnValue();
-        if (returnValue == FXMLSourceEditorController.ReturnValue.OK) {
-            final String text = fxmlSourceEditorController.getText();
-            cleanHtmlText = cleanHtml(text);
-			frenchTextHtmlEditor.setHtmlText(cleanHtmlText);
-        }
+	@FXML
+	public void frenchTextCleanSourceButtonAction() {
+        final String htmlText = this.frenchTextHtmlEditor.getHtmlText();
+		final String cleanHtmlText = cleanHtml(htmlText);
+		this.frenchTextHtmlEditor.setHtmlText(cleanHtmlText);
     }
 
     @FXML
-	void addNoticeButtonMouseClicked(ActionEvent event) {
+    public void frenchTextEditSourceButtonAction() {
+		try {
+			showEditSourceWindow("View Source: french", this.frenchTextHtmlEditor);
+		}
+		catch (final IOException ioException) {
+			alertException(ioException);
+		}
+    }
+
+	@FXML
+	public void addNoticeButtonMouseClicked(ActionEvent event) {
 	    new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
 	}
 
@@ -324,49 +272,82 @@ public class FXMLDocumentController {
 	}
 
 	private void closeOpenFile() {
-		openFile = null;
-		
+		this.currentlyOpenFile = null;
+
 		clearNoticesListView();
 		clearEditorPane();
-		
-		fileCloseMenuItem.setDisable(true);
-		fileSaveMenuItem.setDisable(true);
-		fileSaveAsMenuItem.setDisable(true);
-		fileRevertMenuItem.setDisable(true);
+
+		this.fileCloseMenuItem.setDisable(true);
+		this.fileSaveMenuItem.setDisable(true);
+		this.fileSaveAsMenuItem.setDisable(true);
+		this.fileRevertMenuItem.setDisable(true);
+		this.toolsPreviewXmlMenuItem.setDisable(true);
 	}
 
-	private List<Notice> getNotices(InputStream inputStream) throws JAXBException {
+	private String marshallNotices(Notices notices) throws JAXBException, UnsupportedEncodingException {
+		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
+		final Marshaller marshaller = jaxbContext.createMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_ENCODING, "ISO-8859-1");
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+		marshaller.setProperty(CustomCharacterEscapeHandler.JAXB_CHARACTER_ESCAPE_HANDLER, new CustomCharacterEscapeHandler());
+		marshaller.marshal(notices, byteArrayOutputStream);
+		return NoticesHeader.HEADER + byteArrayOutputStream.toString("ISO-8859-1");
+	}
+
+	private Notices unmarshallNotices(InputStream inputStream) throws JAXBException {
 	    final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
 	    final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 	    final Notices noticesRoot = (Notices) unmarshaller.unmarshal(inputStream);
-	    return noticesRoot.getNotice();
+	    return noticesRoot;
 	}
 
-	private void loadNotices(InputStream inputStream) throws JAXBException {
-	    final List<Notice> notices = getNotices(inputStream);
+	private FXMLLoader getSourceEditorLoader() {
+		final Class<? extends FXMLDocumentController> clazz = getClass();
+		final URL url = clazz.getResource(FXMLSourceEditorController.FXML_LOCATION);
+		return new FXMLLoader(url);
+	}
+
+	private Stage getSourceEditorStage(Parent parent, String title) throws IOException {
+		final Stage stage = new Stage(StageStyle.UTILITY);
+		final Scene scene = new Scene(parent);
+
+		stage.setScene(scene);
+	    stage.initModality(Modality.APPLICATION_MODAL);
+		stage.setTitle(title);
+
+		return stage;
+	}
+
+	private void loadNotices(List<Notice> notices) {
 		final ObservableList<Notice> observableNotices = FXCollections.observableList(notices);
-		noticesListView.setItems(observableNotices);
-	    leftPane.setDisable(false);
+		this.noticesListView.setItems(observableNotices);
+	    this.leftPane.setDisable(false);
 	}
 
 	private void openExistingFile() {
 		final FileChooser fileChooser = new FileChooser();
 	    final ObservableList<ExtensionFilter> observableExtensionFilters = fileChooser.getExtensionFilters();
-		observableExtensionFilters.add(XML_EXTENSION_FILTER);
-	
-	    final Scene scene = root.getScene();
+		observableExtensionFilters.add(FXMLDocumentController.XML_EXTENSION_FILTER);
+
+	    final Scene scene = this.root.getScene();
 		final Window window = scene.getWindow();
 		final File file = fileChooser.showOpenDialog(window);
-	    
+
 	    if (file != null) {
 	        try {
 				final FileInputStream inputStream = new FileInputStream(file);
-				loadNotices(inputStream);
-				this.openFile = file;
-				fileCloseMenuItem.setDisable(false);
-				fileSaveMenuItem.setDisable(false);
-				fileSaveAsMenuItem.setDisable(false);
-				fileRevertMenuItem.setDisable(false);
+				this.currentlyLoadedNotices = unmarshallNotices(inputStream);
+				loadNotices(this.currentlyLoadedNotices.getNotice());
+
+				this.fileCloseMenuItem.setDisable(false);
+				this.fileSaveMenuItem.setDisable(false);
+				this.fileSaveAsMenuItem.setDisable(false);
+				this.fileRevertMenuItem.setDisable(false);
+				this.toolsPreviewXmlMenuItem.setDisable(false);
+
+				this.currentlyOpenFile = file;
 			}
 	        catch (final FileNotFoundException | JAXBException exception) {
 	        	alertException(exception);
@@ -376,17 +357,41 @@ public class FXMLDocumentController {
 
 	private void openSampleFile() {
 		final InputStream inputStream = getClass().getResourceAsStream("/sample-notices.xml");
-		
+
 		try {
-			loadNotices(inputStream);
-			fileCloseMenuItem.setDisable(false);
-			fileSaveMenuItem.setDisable(true);
-			fileSaveAsMenuItem.setDisable(false);
-			fileRevertMenuItem.setDisable(false);
+			this.currentlyLoadedNotices = unmarshallNotices(inputStream);
+			loadNotices(this.currentlyLoadedNotices.getNotice());
+
+			this.fileCloseMenuItem.setDisable(false);
+			this.fileSaveMenuItem.setDisable(true);
+			this.fileSaveAsMenuItem.setDisable(false);
+			this.fileRevertMenuItem.setDisable(false);
+			this.toolsPreviewXmlMenuItem.setDisable(false);
+
+			this.currentlyOpenFile = null;
 		}
 		catch (final JAXBException exception) {
 	    	alertException(exception);
 		}
+	}
+
+	private void showEditSourceWindow(String title, HTMLEditor htmlEditor) throws IOException {
+		final FXMLLoader fxmlLoader = getSourceEditorLoader();
+		final Parent parent = fxmlLoader.load();
+		final Stage stage = getSourceEditorStage(parent, title);
+		final FXMLSourceEditorController fxmlSourceEditorController = fxmlLoader.getController();
+	    final String htmlText = htmlEditor.getHtmlText();
+	    String cleanHtmlText = cleanHtml(htmlText);
+		fxmlSourceEditorController.setText(cleanHtmlText);
+
+	    stage.showAndWait();
+
+	    final FXMLSourceEditorController.ReturnValue returnValue = fxmlSourceEditorController.getReturnValue();
+	    if (returnValue == FXMLSourceEditorController.ReturnValue.OK) {
+	        final String text = fxmlSourceEditorController.getText();
+	        cleanHtmlText = cleanHtml(text);
+	        htmlEditor.setHtmlText(cleanHtmlText);
+	    }
 	}
 
 	private void updateEditorPane(Notice notice) {
@@ -394,7 +399,7 @@ public class FXMLDocumentController {
             clearEditorPane();
         }
         else {
-            rightPane.setDisable(false);
+            this.rightPane.setDisable(false);
 
             final Title title = notice.getTitle();
 			final String englishTitle = title.getEnglish();

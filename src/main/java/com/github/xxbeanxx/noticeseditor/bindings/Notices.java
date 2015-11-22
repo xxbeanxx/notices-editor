@@ -4,8 +4,6 @@
 // Any modifications to this file will be lost upon recompilation of the source schema. 
 // Generated on: 2015.11.21 at 04:08:41 PM NST 
 //
-
-
 package com.github.xxbeanxx.noticeseditor.bindings;
 
 import java.util.ArrayList;
@@ -17,7 +15,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-
 
 /**
  * <p>Java class for anonymous complex type.

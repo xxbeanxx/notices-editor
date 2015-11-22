@@ -12,29 +12,27 @@ import javafx.stage.Stage;
  */
 public class FXMLSourceEditorController {
 
+    public static final String FXML_LOCATION = "/com/github/xxbeanxx/noticeseditor/FXMLSourceEditor.fxml";
+
 	public enum ReturnValue { OK, CANCEL }
     
     private ReturnValue returnValue = ReturnValue.CANCEL;
     
-    @FXML
-    private Button cancelButton;
+    @FXML Button okButton;
+    @FXML Button cancelButton;
+    @FXML TextArea textArea;
 
     @FXML
-    private Button okButton;
-
-    @FXML
-    private TextArea textArea;
-
-    @FXML
-    void cancelButtonAction(ActionEvent event) {
+    public void cancelButtonAction(ActionEvent event) {
         final Button button = (Button) event.getSource();
         final Scene scene = button.getScene();
         final Stage stage = (Stage) scene.getWindow();
+        this.returnValue = ReturnValue.CANCEL;
         stage.close();
     }
     
     @FXML
-    void okButtonAction(ActionEvent event) {
+    public void okButtonAction(ActionEvent event) {
         final Button button = (Button) event.getSource();
         final Scene scene = button.getScene();
         final Stage stage = (Stage) scene.getWindow();
@@ -53,5 +51,5 @@ public class FXMLSourceEditorController {
     public ReturnValue getReturnValue() {
         return returnValue;
     }
-
+    
 }
