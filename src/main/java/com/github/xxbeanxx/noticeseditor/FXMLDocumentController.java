@@ -59,454 +59,492 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
+/**
+ * @author Greg Baker
+ */
 public class FXMLDocumentController {
 
-	private static final FileChooser.ExtensionFilter XML_EXTENSION_FILTER = new FileChooser.ExtensionFilter("Notices files (*.xml)", "*.xml");
+  private static final FileChooser.ExtensionFilter XML_EXTENSION_FILTER =
+      new FileChooser.ExtensionFilter("Notices files (*.xml)", "*.xml");
 
-    @FXML Node root;
+  @FXML
+  Node root;
 
-    ////////////////////////////////////////////////////////////////////////////
-    //         File menu items
-    ////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
+  // File menu items
+  ////////////////////////////////////////////////////////////////////////////
 
-    @FXML MenuItem fileNewMenuItem;
-    @FXML MenuItem fileOpenMenuItem;
-    @FXML MenuItem fileSaveMenuItem;
-    @FXML MenuItem fileSaveAsMenuItem;
-    @FXML MenuItem fileCloseMenuItem;
-    @FXML MenuItem fileRevertMenuItem;
-    @FXML MenuItem fileQuitMenuItem;
+  @FXML
+  MenuItem fileNewMenuItem;
+  @FXML
+  MenuItem fileOpenMenuItem;
+  @FXML
+  MenuItem fileSaveMenuItem;
+  @FXML
+  MenuItem fileSaveAsMenuItem;
+  @FXML
+  MenuItem fileCloseMenuItem;
+  @FXML
+  MenuItem fileRevertMenuItem;
+  @FXML
+  MenuItem fileQuitMenuItem;
 
-    ////////////////////////////////////////////////////////////////////////////
-    //         Tools menu items
-    ////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
+  // Tools menu items
+  ////////////////////////////////////////////////////////////////////////////
 
-    @FXML MenuItem toolsOpenSampleNoticesMenuItem;
-	@FXML MenuItem toolsPreviewXmlMenuItem;
+  @FXML
+  MenuItem toolsOpenSampleNoticesMenuItem;
+  @FXML
+  MenuItem toolsPreviewXmlMenuItem;
 
-    ////////////////////////////////////////////////////////////////////////////
-    //         Help menu items
-    ////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
+  // Help menu items
+  ////////////////////////////////////////////////////////////////////////////
 
-    @FXML MenuItem helpAboutMenuItem;
+  @FXML
+  MenuItem helpAboutMenuItem;
 
-    ////////////////////////////////////////////////////////////////////////////
-    //         Left pane items
-    ////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
+  // Left pane items
+  ////////////////////////////////////////////////////////////////////////////
 
-    @FXML AnchorPane leftPane;
-    @FXML ListView<Notice> noticesListView;
-    @FXML Button addNoticeButton;
+  @FXML
+  AnchorPane leftPane;
+  @FXML
+  ListView<Notice> noticesListView;
+  @FXML
+  Button addNoticeButton;
 
-    ////////////////////////////////////////////////////////////////////////////
-    //         Right pane items
-    ////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
+  // Right pane items
+  ////////////////////////////////////////////////////////////////////////////
 
-    @FXML VBox rightPane;
-    @FXML TextField englishTitleTextField;
-    @FXML TextField frenchTitleTextField;
-    @FXML HTMLEditor englishTextHtmlEditor;
-    @FXML HTMLEditor frenchTextHtmlEditor;
-    @FXML DatePicker startDateDatePicker;
-    @FXML DatePicker endDateDatePicker;
-    @FXML DatePicker creationDateDatePicker;
-    @FXML DatePicker displayedDateDatePicker;
-    @FXML Button frenchTextEditSourceButton;
-    @FXML Button englishTextEditSourceButton;
-    @FXML Button englishTextCleanSourceButton;
-    @FXML Button frenchTextCleanSourceButton;
+  @FXML
+  VBox rightPane;
+  @FXML
+  TextField englishTitleTextField;
+  @FXML
+  TextField frenchTitleTextField;
+  @FXML
+  HTMLEditor englishTextHtmlEditor;
+  @FXML
+  HTMLEditor frenchTextHtmlEditor;
+  @FXML
+  DatePicker startDateDatePicker;
+  @FXML
+  DatePicker endDateDatePicker;
+  @FXML
+  DatePicker creationDateDatePicker;
+  @FXML
+  DatePicker displayedDateDatePicker;
+  @FXML
+  Button frenchTextEditSourceButton;
+  @FXML
+  Button englishTextEditSourceButton;
+  @FXML
+  Button englishTextCleanSourceButton;
+  @FXML
+  Button frenchTextCleanSourceButton;
 
-    ////////////////////////////////////////////////////////////////////////////
-    //         Other class members
-    ////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
+  // Other class members
+  ////////////////////////////////////////////////////////////////////////////
 
-    private File currentlyOpenFile;
+  private File currentlyOpenFile;
 
-    private Notices currentlyLoadedNotices;
+  private Notices currentlyLoadedNotices;
 
-	private Notice currentlySelectedNotice;
+  private Notice currentlySelectedNotice;
 
-    @FXML
-    public void initialize() {
-        this.noticesListView.setCellFactory((ListView<Notice> listView) -> { return new NoticeListCell(); });
+  @FXML
+  public void initialize() {
+    this.noticesListView.setCellFactory((ListView<Notice> listView) -> {
+      return new NoticeListCell();
+    });
 
-        this.noticesListView.getSelectionModel().selectedItemProperty().addListener(
-            (ObservableValue<? extends Notice> observableValue, Notice oldNotice, Notice newNotice) -> {
-            	this.currentlySelectedNotice = newNotice;
-                updateNoticeList(oldNotice);
-            	updateEditorPane(newNotice);
-            }
-        );
-        
-        this.englishTitleTextField.addEventHandler(Event.ANY, event -> currentlySelectedNotice.getTitle().setEnglish(englishTitleTextField.getText()));
-        
-        this.frenchTitleTextField.addEventHandler(Event.ANY, event -> currentlySelectedNotice.getTitle().setFrench(frenchTitleTextField.getText()));
-        
-        this.englishTextHtmlEditor.addEventHandler(Event.ANY, event -> currentlySelectedNotice.getText().setEnglish(cleanHtml(englishTextHtmlEditor.getHtmlText())));
-        
-        this.frenchTextHtmlEditor.addEventHandler(Event.ANY, event -> currentlySelectedNotice.getText().setFrench(cleanHtml(frenchTextHtmlEditor.getHtmlText())));
-        
-        this.startDateDatePicker.addEventFilter(Event.ANY, event -> {
-			try {
-				currentlySelectedNotice.setEffectiveDate(localDateToXmlGregorianCalendar(startDateDatePicker.getValue()));
-			}
-			catch (DatatypeConfigurationException datatypeConfigurationException) {
-				alertException(datatypeConfigurationException);
-			}
-		});
+    this.noticesListView.getSelectionModel().selectedItemProperty().addListener(
+        (ObservableValue<? extends Notice> observableValue, Notice oldNotice, Notice newNotice) -> {
+          this.currentlySelectedNotice = newNotice;
+          updateNoticeList(oldNotice);
+          updateEditorPane(newNotice);
+        });
 
-        this.endDateDatePicker.addEventFilter(Event.ANY, event -> {
-			try {
-				currentlySelectedNotice.setExpiryDate(localDateToXmlGregorianCalendar(endDateDatePicker.getValue()));
-			}
-			catch (DatatypeConfigurationException datatypeConfigurationException) {
-				alertException(datatypeConfigurationException);
-			}
-		});
+    this.englishTitleTextField.addEventHandler(Event.ANY, event -> this.currentlySelectedNotice
+        .getTitle().setEnglish(this.englishTitleTextField.getText()));
+    this.frenchTitleTextField.addEventHandler(Event.ANY, event -> this.currentlySelectedNotice
+        .getTitle().setFrench(this.frenchTitleTextField.getText()));
+    this.englishTextHtmlEditor.addEventHandler(Event.ANY, event -> this.currentlySelectedNotice
+        .getText().setEnglish(cleanHtml(this.englishTextHtmlEditor.getHtmlText())));
+    this.frenchTextHtmlEditor.addEventHandler(Event.ANY, event -> this.currentlySelectedNotice
+        .getText().setFrench(cleanHtml(this.frenchTextHtmlEditor.getHtmlText())));
 
-        this.displayedDateDatePicker.addEventFilter(Event.ANY, event -> {
-			try {
-				currentlySelectedNotice.setDisplayDate(localDateToXmlGregorianCalendar(displayedDateDatePicker.getValue()));
-			}
-			catch (DatatypeConfigurationException datatypeConfigurationException) {
-				alertException(datatypeConfigurationException);
-			}
-		});
+    this.startDateDatePicker.addEventFilter(Event.ANY, event -> {
+      try {
+        this.currentlySelectedNotice
+            .setEffectiveDate(localDateToXmlGregorianCalendar(this.startDateDatePicker.getValue()));
+      } catch (final DatatypeConfigurationException datatypeConfigurationException) {
+        handleException(datatypeConfigurationException);
+      }
+    });
+
+    this.endDateDatePicker.addEventFilter(Event.ANY, event -> {
+      try {
+        this.currentlySelectedNotice
+            .setExpiryDate(localDateToXmlGregorianCalendar(this.endDateDatePicker.getValue()));
+      } catch (final DatatypeConfigurationException datatypeConfigurationException) {
+        handleException(datatypeConfigurationException);
+      }
+    });
+
+    this.displayedDateDatePicker.addEventFilter(Event.ANY, event -> {
+      try {
+        this.currentlySelectedNotice.setDisplayDate(
+            localDateToXmlGregorianCalendar(this.displayedDateDatePicker.getValue()));
+      } catch (final DatatypeConfigurationException datatypeConfigurationException) {
+        handleException(datatypeConfigurationException);
+      }
+    });
+  }
+
+  @FXML
+  public void deleteContextMenuItemAction(ActionEvent event) {
+    new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  // File menu action handlers
+  ////////////////////////////////////////////////////////////////////////////
+
+  @FXML
+  public void fileNewMenuItemAction(ActionEvent event) {
+    new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+  }
+
+  @FXML
+  public void fileOpenMenuItemAction(ActionEvent event) {
+    openExistingFile();
+  }
+
+  @FXML
+  public void fileSaveMenuItemAction(ActionEvent event) {
+    try {
+      saveToFile(this.currentlyOpenFile, this.currentlyLoadedNotices);
+    } catch (final UnsupportedEncodingException | FileNotFoundException | JAXBException exception) {
+      handleException(exception);
     }
+  }
 
-    @FXML
-    public void deleteContextMenuItemAction(ActionEvent event) {
-        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+  @FXML
+  public void fileSaveAsMenuItemAction(ActionEvent event) {
+    final FileChooser fileChooser = new FileChooser();
+    final ObservableList<ExtensionFilter> observableExtensionFilters =
+        fileChooser.getExtensionFilters();
+    observableExtensionFilters.add(FXMLDocumentController.XML_EXTENSION_FILTER);
+
+    final Scene scene = this.root.getScene();
+    final Window window = scene.getWindow();
+    final File file = fileChooser.showSaveDialog(window);
+
+    if (file != null) {
+      try {
+        saveToFile(file, this.currentlyLoadedNotices);
+      } catch (final UnsupportedEncodingException | FileNotFoundException
+          | JAXBException exception) {
+        handleException(exception);
+      }
     }
+  }
 
-    ////////////////////////////////////////////////////////////////////////////
-    //         File menu action handlers
-    ////////////////////////////////////////////////////////////////////////////
+  @FXML
+  public void fileCloseMenuItemAction(ActionEvent event) {
+    closeOpenFile();
+  }
 
-    @FXML
-    public void fileNewMenuItemAction(ActionEvent event) {
-        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+  @FXML
+  public void fileRevertMenuItemAction(ActionEvent event) throws JAXBException {
+    new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+  }
+
+  @FXML
+  public void fileQuitMenuItemAction(ActionEvent event) {
+    new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  // Tools menu action handlers
+  ////////////////////////////////////////////////////////////////////////////
+
+  @FXML
+  public void toolsOpenSampleNoticesMenuItemAction(ActionEvent event) {
+    openSampleFile();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  // About menu action handlers
+  ////////////////////////////////////////////////////////////////////////////
+
+  @FXML
+  public void toolsPreviewXmlMenuItemAction(ActionEvent event) throws IOException, JAXBException {
+    final FXMLLoader fxmlLoader = getSourceEditorLoader();
+    final Parent parent = fxmlLoader.load();
+    final Stage stage = getSourceEditorStage(parent, "Preview XML...");
+    final FXMLSourceEditorController fxmlSourceEditorController = fxmlLoader.getController();
+    final String text = marshallNotices(this.currentlyLoadedNotices);
+    fxmlSourceEditorController.setText(text);
+    stage.showAndWait();
+  }
+
+  @FXML
+  public void helpAboutMenuItemAction(ActionEvent event) {
+    new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+  }
+
+  @FXML
+  public void englishTextCleanSourceButtonAction(ActionEvent event) throws IOException {
+    final String htmlText = this.englishTextHtmlEditor.getHtmlText();
+    final String cleanHtmlText = cleanHtml(htmlText);
+    this.englishTextHtmlEditor.setHtmlText(cleanHtmlText);
+  }
+
+  @FXML
+  public void englishTextEditSourceButtonAction() {
+    try {
+      showEditSourceWindow("View Source: english", this.englishTextHtmlEditor);
+    } catch (final IOException ioException) {
+      handleException(ioException);
     }
+  }
 
-    @FXML
-    public void fileOpenMenuItemAction(ActionEvent event) {
-        openExistingFile();
+  @FXML
+  public void frenchTextCleanSourceButtonAction() {
+    final String htmlText = this.frenchTextHtmlEditor.getHtmlText();
+    final String cleanHtmlText = cleanHtml(htmlText);
+    this.frenchTextHtmlEditor.setHtmlText(cleanHtmlText);
+  }
+
+  @FXML
+  public void frenchTextEditSourceButtonAction() {
+    try {
+      showEditSourceWindow("View Source: french", this.frenchTextHtmlEditor);
+    } catch (final IOException ioException) {
+      handleException(ioException);
     }
+  }
 
-	@FXML
-	public void fileSaveMenuItemAction(ActionEvent event) {
-		try {
-			saveToFile(this.currentlyOpenFile, this.currentlyLoadedNotices);
-		}
-		catch (UnsupportedEncodingException | FileNotFoundException | JAXBException exception) {
-			alertException(exception);
-		}
+  @FXML
+  public void addNoticeButtonMouseClicked(ActionEvent event) {
+    new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+  }
+
+  private String cleanHtml(String html) {
+    final Whitelist whitelist = Whitelist.basic();
+    return Jsoup.clean(html, whitelist);
+  }
+
+  private void clearNoticesListView() {
+    this.leftPane.setDisable(true);
+    this.noticesListView.setItems(null);
+  }
+
+  private void clearEditorPane() {
+    this.rightPane.setDisable(true);
+    this.englishTitleTextField.setText(null);
+    this.frenchTitleTextField.setText(null);
+    this.englishTextHtmlEditor.setHtmlText("");
+    this.frenchTextHtmlEditor.setHtmlText("");
+    this.startDateDatePicker.setValue(null);
+    this.endDateDatePicker.setValue(null);
+    this.displayedDateDatePicker.setValue(null);
+    this.creationDateDatePicker.setValue(null);
+  }
+
+  private void closeOpenFile() {
+    this.currentlyOpenFile = null;
+
+    clearNoticesListView();
+    clearEditorPane();
+
+    this.fileCloseMenuItem.setDisable(true);
+    this.fileSaveMenuItem.setDisable(true);
+    this.fileSaveAsMenuItem.setDisable(true);
+    this.fileRevertMenuItem.setDisable(true);
+    this.toolsPreviewXmlMenuItem.setDisable(true);
+  }
+
+  private FXMLLoader getSourceEditorLoader() {
+    final Class<? extends FXMLDocumentController> clazz = getClass();
+    final URL url = clazz.getResource(FXMLSourceEditorController.FXML_LOCATION);
+    return new FXMLLoader(url);
+  }
+
+  private Stage getSourceEditorStage(Parent parent, String title) throws IOException {
+    final Stage stage = new Stage(StageStyle.UTILITY);
+    final Scene scene = new Scene(parent);
+
+    stage.setScene(scene);
+    stage.initModality(Modality.APPLICATION_MODAL);
+    stage.setTitle(title);
+
+    return stage;
+  }
+
+  private void handleException(Exception exception) {
+    new Alert(Alert.AlertType.ERROR, exception.getMessage()).showAndWait();
+  }
+
+  private void loadNotices(List<Notice> notices) {
+    final ObservableList<Notice> observableNotices = FXCollections.observableList(notices);
+    this.noticesListView.setItems(observableNotices);
+    this.leftPane.setDisable(false);
+  }
+
+  private XMLGregorianCalendar localDateToXmlGregorianCalendar(LocalDate localDate)
+      throws DatatypeConfigurationException {
+    return DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(
+        localDate.getYear(), localDate.getMonthValue() - 1, localDate.getDayOfMonth()));
+  }
+
+  private String marshallNotices(Notices notices)
+      throws JAXBException, UnsupportedEncodingException {
+    final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
+    final Marshaller marshaller = jaxbContext.createMarshaller();
+    marshaller.setProperty(Marshaller.JAXB_ENCODING, "ISO-8859-1");
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+    marshaller.setProperty(CustomCharacterEscapeHandler.JAXB_CHARACTER_ESCAPE_HANDLER,
+        new CustomCharacterEscapeHandler());
+    marshaller.marshal(notices, byteArrayOutputStream);
+    return NoticesHeader.HEADER + byteArrayOutputStream.toString("ISO-8859-1");
+  }
+
+  private void openExistingFile() {
+    final FileChooser fileChooser = new FileChooser();
+    final ObservableList<ExtensionFilter> observableExtensionFilters =
+        fileChooser.getExtensionFilters();
+    observableExtensionFilters.add(FXMLDocumentController.XML_EXTENSION_FILTER);
+
+    final Scene scene = this.root.getScene();
+    final Window window = scene.getWindow();
+    final File file = fileChooser.showOpenDialog(window);
+
+    if (file != null) {
+      try {
+        final FileInputStream inputStream = new FileInputStream(file);
+        this.currentlyLoadedNotices = unmarshallNotices(inputStream);
+        loadNotices(this.currentlyLoadedNotices.getNotice());
+
+        this.fileCloseMenuItem.setDisable(false);
+        this.fileSaveMenuItem.setDisable(false);
+        this.fileSaveAsMenuItem.setDisable(false);
+        this.fileRevertMenuItem.setDisable(false);
+        this.toolsPreviewXmlMenuItem.setDisable(false);
+
+        this.currentlyOpenFile = file;
+      } catch (final FileNotFoundException | JAXBException exception) {
+        handleException(exception);
+      }
     }
+  }
 
-	@FXML
-    public void fileSaveAsMenuItemAction(ActionEvent event) {
-		final FileChooser fileChooser = new FileChooser();
-	    final ObservableList<ExtensionFilter> observableExtensionFilters = fileChooser.getExtensionFilters();
-		observableExtensionFilters.add(FXMLDocumentController.XML_EXTENSION_FILTER);
+  private void openSampleFile() {
+    final InputStream inputStream = getClass().getResourceAsStream("/sample-notices.xml");
 
-	    final Scene scene = this.root.getScene();
-		final Window window = scene.getWindow();
-		final File file = fileChooser.showSaveDialog(window);
+    try {
+      this.currentlyLoadedNotices = unmarshallNotices(inputStream);
+      loadNotices(this.currentlyLoadedNotices.getNotice());
 
-	    if (file != null) {
-	    	try {
-				saveToFile(file, this.currentlyLoadedNotices);
-			}
-	    	catch (UnsupportedEncodingException | FileNotFoundException | JAXBException exception) {
-	    		alertException(exception);
-			}
-	    }
+      this.fileCloseMenuItem.setDisable(false);
+      this.fileSaveMenuItem.setDisable(true);
+      this.fileSaveAsMenuItem.setDisable(false);
+      this.fileRevertMenuItem.setDisable(false);
+      this.toolsPreviewXmlMenuItem.setDisable(false);
+
+      this.currentlyOpenFile = null;
+    } catch (final JAXBException exception) {
+      handleException(exception);
     }
+  }
 
-    @FXML
-    public void fileCloseMenuItemAction(ActionEvent event) {
-		closeOpenFile();
-	}
-
-	@FXML
-	public void fileRevertMenuItemAction(ActionEvent event) throws JAXBException {
-        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+  private void saveToFile(File file, Notices notices)
+      throws JAXBException, UnsupportedEncodingException, FileNotFoundException {
+    final FileOutputStream fileOutputStream = new FileOutputStream(file, false);
+    final String text = marshallNotices(notices);
+    try (final PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+      printWriter.println(text);
     }
+  }
 
-    @FXML
-    public void fileQuitMenuItemAction(ActionEvent event) {
-        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+  private void showEditSourceWindow(String title, HTMLEditor htmlEditor) throws IOException {
+    final FXMLLoader fxmlLoader = getSourceEditorLoader();
+    final Parent parent = fxmlLoader.load();
+    final Stage stage = getSourceEditorStage(parent, title);
+    final FXMLSourceEditorController fxmlSourceEditorController = fxmlLoader.getController();
+    final String htmlText = htmlEditor.getHtmlText();
+    String cleanHtmlText = cleanHtml(htmlText);
+    fxmlSourceEditorController.setText(cleanHtmlText);
+
+    stage.showAndWait();
+
+    final FXMLSourceEditorController.ReturnValue returnValue =
+        fxmlSourceEditorController.getReturnValue();
+    if (returnValue == FXMLSourceEditorController.ReturnValue.OK) {
+      final String text = fxmlSourceEditorController.getText();
+      cleanHtmlText = cleanHtml(text);
+      htmlEditor.setHtmlText(cleanHtmlText);
     }
+  }
 
-    ////////////////////////////////////////////////////////////////////////////
-    //         Tools menu action handlers
-    ////////////////////////////////////////////////////////////////////////////
+  private Notices unmarshallNotices(InputStream inputStream) throws JAXBException {
+    final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
+    final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+    final Notices noticesRoot = (Notices) unmarshaller.unmarshal(inputStream);
+    return noticesRoot;
+  }
 
-    @FXML
-    public void toolsOpenSampleNoticesMenuItemAction(ActionEvent event) {
-    	openSampleFile();
+  private void updateEditorPane(Notice notice) {
+    if (notice == null) {
+      clearEditorPane();
+    } else {
+      this.rightPane.setDisable(false);
+
+      final Title title = notice.getTitle();
+      final String englishTitle = title.getEnglish();
+      final String frenchTitle = title.getFrench();
+      this.englishTitleTextField.setText(englishTitle);
+      this.frenchTitleTextField.setText(frenchTitle);
+
+      final Text text = notice.getText();
+      final String englishText = text.getEnglish();
+      final String frenchText = text.getFrench();
+      this.englishTextHtmlEditor.setHtmlText(englishText);
+      this.frenchTextHtmlEditor.setHtmlText(frenchText);
+
+      final XMLGregorianCalendar effectiveDate = notice.getEffectiveDate();
+      final LocalDate effectiveLocalDate =
+          LocalDate.of(effectiveDate.getYear(), effectiveDate.getMonth(), effectiveDate.getDay());
+      this.startDateDatePicker.setValue(effectiveLocalDate);
+
+      final XMLGregorianCalendar expiryDate = notice.getExpiryDate();
+      final LocalDate expiryLocalDate =
+          LocalDate.of(expiryDate.getYear(), expiryDate.getMonth(), expiryDate.getDay());
+      this.endDateDatePicker.setValue(expiryLocalDate);
+
+      final XMLGregorianCalendar displayDate = notice.getDisplayDate();
+      final LocalDate displayLocaleDate =
+          LocalDate.of(displayDate.getYear(), displayDate.getMonth(), displayDate.getDay());
+      this.displayedDateDatePicker.setValue(displayLocaleDate);
+
+      final XMLGregorianCalendar dateCreated = notice.getDateCreated();
+      final LocalDate createdLocalDate =
+          LocalDate.of(dateCreated.getYear(), dateCreated.getMonth(), dateCreated.getDay());
+      this.creationDateDatePicker.setValue(createdLocalDate);
     }
+  }
 
-    ////////////////////////////////////////////////////////////////////////////
-    //         About menu action handlers
-    ////////////////////////////////////////////////////////////////////////////
-
-	@FXML
-	public void toolsPreviewXmlMenuItemAction(ActionEvent event) throws IOException, JAXBException {
-		final FXMLLoader fxmlLoader = getSourceEditorLoader();
-		final Parent parent = fxmlLoader.load();
-		final Stage stage = getSourceEditorStage(parent, "Preview XML...");
-		final FXMLSourceEditorController fxmlSourceEditorController = fxmlLoader.getController();
-		final String text = marshallNotices(this.currentlyLoadedNotices);
-		fxmlSourceEditorController.setText(text);
-	    stage.showAndWait();
-	}
-
-	@FXML
-	public void helpAboutMenuItemAction(ActionEvent event) {
-	    new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
-	}
-
-	@FXML
-	public void englishTextCleanSourceButtonAction(ActionEvent event) throws IOException {
-        final String htmlText = this.englishTextHtmlEditor.getHtmlText();
-		final String cleanHtmlText = cleanHtml(htmlText);
-		this.englishTextHtmlEditor.setHtmlText(cleanHtmlText);
-    }
-
-    @FXML
-    public void englishTextEditSourceButtonAction() {
-		try {
-			showEditSourceWindow("View Source: english", this.englishTextHtmlEditor);
-		}
-		catch (final IOException ioException) {
-			alertException(ioException);
-		}
-	}
-
-	@FXML
-	public void frenchTextCleanSourceButtonAction() {
-        final String htmlText = this.frenchTextHtmlEditor.getHtmlText();
-		final String cleanHtmlText = cleanHtml(htmlText);
-		this.frenchTextHtmlEditor.setHtmlText(cleanHtmlText);
-    }
-
-    @FXML
-    public void frenchTextEditSourceButtonAction() {
-		try {
-			showEditSourceWindow("View Source: french", this.frenchTextHtmlEditor);
-		}
-		catch (final IOException ioException) {
-			alertException(ioException);
-		}
-    }
-
-	@FXML
-	public void addNoticeButtonMouseClicked(ActionEvent event) {
-	    new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
-	}
-
-	private void alertException(Exception exception) {
-		new Alert(Alert.AlertType.ERROR, exception.getMessage()).showAndWait();
-	}
-
-	private String cleanHtml(String html) {
-        final Whitelist whitelist = Whitelist.basic();
-		return Jsoup.clean(html, whitelist);
-    }
-
-    private void clearNoticesListView() {
-    	this.leftPane.setDisable(true);
-    	this.noticesListView.setItems(null);
-	}
-
-	private void clearEditorPane() {
-	    this.rightPane.setDisable(true);
-	    this.englishTitleTextField.setText(null);
-	    this.frenchTitleTextField.setText(null);
-	    this.englishTextHtmlEditor.setHtmlText("");
-	    this.frenchTextHtmlEditor.setHtmlText("");
-	    this.startDateDatePicker.setValue(null);
-	    this.endDateDatePicker.setValue(null);
-	    this.displayedDateDatePicker.setValue(null);
-	    this.creationDateDatePicker.setValue(null);
-	}
-
-	private void closeOpenFile() {
-		this.currentlyOpenFile = null;
-
-		clearNoticesListView();
-		clearEditorPane();
-
-		this.fileCloseMenuItem.setDisable(true);
-		this.fileSaveMenuItem.setDisable(true);
-		this.fileSaveAsMenuItem.setDisable(true);
-		this.fileRevertMenuItem.setDisable(true);
-		this.toolsPreviewXmlMenuItem.setDisable(true);
-	}
-
-	private FXMLLoader getSourceEditorLoader() {
-		final Class<? extends FXMLDocumentController> clazz = getClass();
-		final URL url = clazz.getResource(FXMLSourceEditorController.FXML_LOCATION);
-		return new FXMLLoader(url);
-	}
-
-	private Stage getSourceEditorStage(Parent parent, String title) throws IOException {
-		final Stage stage = new Stage(StageStyle.UTILITY);
-		final Scene scene = new Scene(parent);
-
-		stage.setScene(scene);
-	    stage.initModality(Modality.APPLICATION_MODAL);
-		stage.setTitle(title);
-
-		return stage;
-	}
-
-	private void loadNotices(List<Notice> notices) {
-		final ObservableList<Notice> observableNotices = FXCollections.observableList(notices);
-		this.noticesListView.setItems(observableNotices);
-	    this.leftPane.setDisable(false);
-	}
-
-	private XMLGregorianCalendar localDateToXmlGregorianCalendar(LocalDate localDate) throws DatatypeConfigurationException {
-		return DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(localDate.getYear(), localDate.getMonthValue()-1, localDate.getDayOfMonth()));
-	}
-
-	private String marshallNotices(Notices notices) throws JAXBException, UnsupportedEncodingException {
-		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
-		final Marshaller marshaller = jaxbContext.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_ENCODING, "ISO-8859-1");
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-		marshaller.setProperty(CustomCharacterEscapeHandler.JAXB_CHARACTER_ESCAPE_HANDLER, new CustomCharacterEscapeHandler());
-		marshaller.marshal(notices, byteArrayOutputStream);
-		return NoticesHeader.HEADER + byteArrayOutputStream.toString("ISO-8859-1");
-	}
-
-	private void openExistingFile() {
-		final FileChooser fileChooser = new FileChooser();
-	    final ObservableList<ExtensionFilter> observableExtensionFilters = fileChooser.getExtensionFilters();
-		observableExtensionFilters.add(FXMLDocumentController.XML_EXTENSION_FILTER);
-
-	    final Scene scene = this.root.getScene();
-		final Window window = scene.getWindow();
-		final File file = fileChooser.showOpenDialog(window);
-
-	    if (file != null) {
-	        try {
-				final FileInputStream inputStream = new FileInputStream(file);
-				this.currentlyLoadedNotices = unmarshallNotices(inputStream);
-				loadNotices(this.currentlyLoadedNotices.getNotice());
-
-				this.fileCloseMenuItem.setDisable(false);
-				this.fileSaveMenuItem.setDisable(false);
-				this.fileSaveAsMenuItem.setDisable(false);
-				this.fileRevertMenuItem.setDisable(false);
-				this.toolsPreviewXmlMenuItem.setDisable(false);
-
-				this.currentlyOpenFile = file;
-			}
-	        catch (final FileNotFoundException | JAXBException exception) {
-	        	alertException(exception);
-			}
-	    }
-	}
-
-	private void openSampleFile() {
-		final InputStream inputStream = getClass().getResourceAsStream("/sample-notices.xml");
-
-		try {
-			this.currentlyLoadedNotices = unmarshallNotices(inputStream);
-			loadNotices(this.currentlyLoadedNotices.getNotice());
-
-			this.fileCloseMenuItem.setDisable(false);
-			this.fileSaveMenuItem.setDisable(true);
-			this.fileSaveAsMenuItem.setDisable(false);
-			this.fileRevertMenuItem.setDisable(false);
-			this.toolsPreviewXmlMenuItem.setDisable(false);
-
-			this.currentlyOpenFile = null;
-		}
-		catch (final JAXBException exception) {
-	    	alertException(exception);
-		}
-	}
-
-	private void saveToFile(File file, Notices notices) throws JAXBException, UnsupportedEncodingException, FileNotFoundException {
-		final FileOutputStream fileOutputStream = new FileOutputStream(file, false);
-		final String text = marshallNotices(notices);
-		try (final PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
-			printWriter.println(text);
-		}
-	}
-
-	private void showEditSourceWindow(String title, HTMLEditor htmlEditor) throws IOException {
-		final FXMLLoader fxmlLoader = getSourceEditorLoader();
-		final Parent parent = fxmlLoader.load();
-		final Stage stage = getSourceEditorStage(parent, title);
-		final FXMLSourceEditorController fxmlSourceEditorController = fxmlLoader.getController();
-	    final String htmlText = htmlEditor.getHtmlText();
-	    String cleanHtmlText = cleanHtml(htmlText);
-		fxmlSourceEditorController.setText(cleanHtmlText);
-
-	    stage.showAndWait();
-
-	    final FXMLSourceEditorController.ReturnValue returnValue = fxmlSourceEditorController.getReturnValue();
-	    if (returnValue == FXMLSourceEditorController.ReturnValue.OK) {
-	        final String text = fxmlSourceEditorController.getText();
-	        cleanHtmlText = cleanHtml(text);
-	        htmlEditor.setHtmlText(cleanHtmlText);
-	    }
-	}
-
-	private Notices unmarshallNotices(InputStream inputStream) throws JAXBException {
-	    final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
-	    final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-	    final Notices noticesRoot = (Notices) unmarshaller.unmarshal(inputStream);
-	    return noticesRoot;
-	}
-
-	private void updateEditorPane(Notice notice) {
-	    if (notice == null) {
-	        clearEditorPane();
-	    }
-	    else {
-	        this.rightPane.setDisable(false);
-	
-	        final Title title = notice.getTitle();
-			final String englishTitle = title.getEnglish();
-			final String frenchTitle = title.getFrench();
-			this.englishTitleTextField.setText(englishTitle);
-			this.frenchTitleTextField.setText(frenchTitle);
-	
-	        final Text text = notice.getText();
-			final String englishText = text.getEnglish();
-			final String frenchText = text.getFrench();
-			this.englishTextHtmlEditor.setHtmlText(englishText);
-			this.frenchTextHtmlEditor.setHtmlText(frenchText);
-	
-	        final XMLGregorianCalendar effectiveDate = notice.getEffectiveDate();
-	        final LocalDate effectiveLocalDate = LocalDate.of(effectiveDate.getYear(), effectiveDate.getMonth(), effectiveDate.getDay());
-			this.startDateDatePicker.setValue(effectiveLocalDate);
-	
-	        final XMLGregorianCalendar expiryDate = notice.getExpiryDate();
-	        final LocalDate expiryLocalDate = LocalDate.of(expiryDate.getYear(), expiryDate.getMonth(), expiryDate.getDay());
-			this.endDateDatePicker.setValue(expiryLocalDate);
-	
-	        final XMLGregorianCalendar displayDate = notice.getDisplayDate();
-	        final LocalDate displayLocaleDate = LocalDate.of(displayDate.getYear(), displayDate.getMonth(), displayDate.getDay());
-			this.displayedDateDatePicker.setValue(displayLocaleDate);
-	
-	        final XMLGregorianCalendar dateCreated = notice.getDateCreated();
-	        final LocalDate createdLocalDate = LocalDate.of(dateCreated.getYear(), dateCreated.getMonth(), dateCreated.getDay());
-			this.creationDateDatePicker.setValue(createdLocalDate);
-	    }
-	}
-
-	private void updateNoticeList(Notice oldNotice) {
-		// TODO Auto-generated method stub
-		
-	}
+  private void updateNoticeList(Notice oldNotice) {
+    // TODO Auto-generated method stub
+  }
 
 }

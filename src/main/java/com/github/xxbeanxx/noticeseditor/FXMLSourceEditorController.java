@@ -12,44 +12,50 @@ import javafx.stage.Stage;
  */
 public class FXMLSourceEditorController {
 
-    public static final String FXML_LOCATION = "/com/github/xxbeanxx/noticeseditor/FXMLSourceEditor.fxml";
+  public static final String FXML_LOCATION =
+      "/com/github/xxbeanxx/noticeseditor/FXMLSourceEditor.fxml";
 
-	public enum ReturnValue { OK, CANCEL }
-    
-    private ReturnValue returnValue = ReturnValue.CANCEL;
-    
-    @FXML Button okButton;
-    @FXML Button cancelButton;
-    @FXML TextArea textArea;
+  public enum ReturnValue {
+    OK, CANCEL
+  }
 
-    @FXML
-    public void cancelButtonAction(ActionEvent event) {
-        final Button button = (Button) event.getSource();
-        final Scene scene = button.getScene();
-        final Stage stage = (Stage) scene.getWindow();
-        this.returnValue = ReturnValue.CANCEL;
-        stage.close();
-    }
-    
-    @FXML
-    public void okButtonAction(ActionEvent event) {
-        final Button button = (Button) event.getSource();
-        final Scene scene = button.getScene();
-        final Stage stage = (Stage) scene.getWindow();
-        this.returnValue = ReturnValue.OK;
-        stage.close();
-    }
+  private ReturnValue returnValue = ReturnValue.CANCEL;
 
-    public String getText() {
-        return textArea.getText();
-    }
-    
-    public void setText(String text) {
-        textArea.setText(text);
-    }
+  @FXML
+  Button okButton;
+  @FXML
+  Button cancelButton;
+  @FXML
+  TextArea textArea;
 
-    public ReturnValue getReturnValue() {
-        return returnValue;
-    }
-    
+  @FXML
+  public void cancelButtonAction(ActionEvent event) {
+    final Button button = (Button) event.getSource();
+    final Scene scene = button.getScene();
+    final Stage stage = (Stage) scene.getWindow();
+    this.returnValue = ReturnValue.CANCEL;
+    stage.close();
+  }
+
+  @FXML
+  public void okButtonAction(ActionEvent event) {
+    final Button button = (Button) event.getSource();
+    final Scene scene = button.getScene();
+    final Stage stage = (Stage) scene.getWindow();
+    this.returnValue = ReturnValue.OK;
+    stage.close();
+  }
+
+  public String getText() {
+    return this.textArea.getText();
+  }
+
+  public void setText(String text) {
+    this.textArea.setText(text);
+  }
+
+  public ReturnValue getReturnValue() {
+    return this.returnValue;
+  }
+
 }

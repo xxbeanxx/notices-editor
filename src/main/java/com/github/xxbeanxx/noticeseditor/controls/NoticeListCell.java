@@ -16,27 +16,27 @@ import javafx.scene.web.WebView;
  */
 public class NoticeListCell extends ListCell<Notice> {
 
-	@Override
-    protected void updateItem(Notice notice, boolean empty) {
-        super.updateItem(notice, empty);
-        
-        if (notice != null) {
-            final XMLGregorianCalendar dateCreated = notice.getDateCreated();
-			super.setText(dateCreated.toString());
+  @Override
+  protected void updateItem(Notice notice, boolean empty) {
+    super.updateItem(notice, empty);
 
-			final Text text = notice.getText();
-			final String englishText = text.getEnglish();
+    if (notice != null) {
+      final XMLGregorianCalendar dateCreated = notice.getDateCreated();
+      super.setText(dateCreated.toString());
 
-            final WebView webView = new WebView();
-            final WebEngine webEngine = webView.getEngine();
-			webEngine.loadContent(englishText);
+      final Text text = notice.getText();
+      final String englishText = text.getEnglish();
 
-            final Tooltip tooltip = new Tooltip();
-            tooltip.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            tooltip.setGraphic(webView);
+      final WebView webView = new WebView();
+      final WebEngine webEngine = webView.getEngine();
+      webEngine.loadContent(englishText);
 
-            super.setTooltip(tooltip);
-        }
+      final Tooltip tooltip = new Tooltip();
+      tooltip.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+      tooltip.setGraphic(webView);
+
+      super.setTooltip(tooltip);
     }
+  }
 
 }
