@@ -43,7 +43,7 @@
 								<KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
 							</accelerator>
 						</MenuItem>
-						<MenuItem fx:id="fileRevertMenuItem" disable="true" mnemonicParsing="false" onAction="#fileRevertMenuItemAction" text="Revert" />
+						<MenuItem fx:id="fileRevertMenuItem" disable="true" mnemonicParsing="false" onAction="#fileRevertMenuItemAction" text="Revert to Saved" />
 						<SeparatorMenuItem mnemonicParsing="false" />
 						<MenuItem fx:id="fileQuitMenuItem" mnemonicParsing="false" onAction="#fileQuitMenuItemAction" text="Quit" />
 					</items>
@@ -70,7 +70,7 @@
 				</Menu>
 				<Menu mnemonicParsing="false" text="Help">
 					<items>
-						<MenuItem fx:id="helpAboutMenuItem" mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About MyHelloApp" />
+						<MenuItem fx:id="helpAboutMenuItem" mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About Notice Editor" />
 					</items>
 				</Menu>
 			</menus>

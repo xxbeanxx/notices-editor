@@ -4,18 +4,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.jsoup.Jsoup;
@@ -23,16 +27,17 @@ import org.jsoup.safety.Whitelist;
 
 import com.github.xxbeanxx.noticeseditor.bindings.CustomCharacterEscapeHandler;
 import com.github.xxbeanxx.noticeseditor.bindings.Notices;
-import com.github.xxbeanxx.noticeseditor.bindings.NoticesHeader;
 import com.github.xxbeanxx.noticeseditor.bindings.Notices.Notice;
 import com.github.xxbeanxx.noticeseditor.bindings.Notices.Notice.Text;
 import com.github.xxbeanxx.noticeseditor.bindings.Notices.Notice.Title;
+import com.github.xxbeanxx.noticeseditor.bindings.NoticesHeader;
 import com.github.xxbeanxx.noticeseditor.controls.NoticeListCell;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -54,7 +59,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
-@SuppressWarnings("restriction")
 public class FXMLDocumentController {
 
 	private static final FileChooser.ExtensionFilter XML_EXTENSION_FILTER = new FileChooser.ExtensionFilter("Notices files (*.xml)", "*.xml");
@@ -120,17 +124,54 @@ public class FXMLDocumentController {
 
     private Notices currentlyLoadedNotices;
 
+	private Notice currentlySelectedNotice;
+
     @FXML
     public void initialize() {
-        this.noticesListView.setCellFactory((ListView<Notice> listView) -> {
-            return new NoticeListCell();
-        });
+        this.noticesListView.setCellFactory((ListView<Notice> listView) -> { return new NoticeListCell(); });
 
         this.noticesListView.getSelectionModel().selectedItemProperty().addListener(
             (ObservableValue<? extends Notice> observableValue, Notice oldNotice, Notice newNotice) -> {
-                updateEditorPane(newNotice);
+            	this.currentlySelectedNotice = newNotice;
+                updateNoticeList(oldNotice);
+            	updateEditorPane(newNotice);
             }
         );
+        
+        this.englishTitleTextField.addEventHandler(Event.ANY, event -> currentlySelectedNotice.getTitle().setEnglish(englishTitleTextField.getText()));
+        
+        this.frenchTitleTextField.addEventHandler(Event.ANY, event -> currentlySelectedNotice.getTitle().setFrench(frenchTitleTextField.getText()));
+        
+        this.englishTextHtmlEditor.addEventHandler(Event.ANY, event -> currentlySelectedNotice.getText().setEnglish(cleanHtml(englishTextHtmlEditor.getHtmlText())));
+        
+        this.frenchTextHtmlEditor.addEventHandler(Event.ANY, event -> currentlySelectedNotice.getText().setFrench(cleanHtml(frenchTextHtmlEditor.getHtmlText())));
+        
+        this.startDateDatePicker.addEventFilter(Event.ANY, event -> {
+			try {
+				currentlySelectedNotice.setEffectiveDate(localDateToXmlGregorianCalendar(startDateDatePicker.getValue()));
+			}
+			catch (DatatypeConfigurationException datatypeConfigurationException) {
+				alertException(datatypeConfigurationException);
+			}
+		});
+
+        this.endDateDatePicker.addEventFilter(Event.ANY, event -> {
+			try {
+				currentlySelectedNotice.setExpiryDate(localDateToXmlGregorianCalendar(endDateDatePicker.getValue()));
+			}
+			catch (DatatypeConfigurationException datatypeConfigurationException) {
+				alertException(datatypeConfigurationException);
+			}
+		});
+
+        this.displayedDateDatePicker.addEventFilter(Event.ANY, event -> {
+			try {
+				currentlySelectedNotice.setDisplayDate(localDateToXmlGregorianCalendar(displayedDateDatePicker.getValue()));
+			}
+			catch (DatatypeConfigurationException datatypeConfigurationException) {
+				alertException(datatypeConfigurationException);
+			}
+		});
     }
 
     @FXML
@@ -154,12 +195,32 @@ public class FXMLDocumentController {
 
 	@FXML
 	public void fileSaveMenuItemAction(ActionEvent event) {
-        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+		try {
+			saveToFile(this.currentlyOpenFile, this.currentlyLoadedNotices);
+		}
+		catch (UnsupportedEncodingException | FileNotFoundException | JAXBException exception) {
+			alertException(exception);
+		}
     }
 
-    @FXML
+	@FXML
     public void fileSaveAsMenuItemAction(ActionEvent event) {
-        new Alert(Alert.AlertType.ERROR, "Not yet implemented.").showAndWait();
+		final FileChooser fileChooser = new FileChooser();
+	    final ObservableList<ExtensionFilter> observableExtensionFilters = fileChooser.getExtensionFilters();
+		observableExtensionFilters.add(FXMLDocumentController.XML_EXTENSION_FILTER);
+
+	    final Scene scene = this.root.getScene();
+		final Window window = scene.getWindow();
+		final File file = fileChooser.showSaveDialog(window);
+
+	    if (file != null) {
+	    	try {
+				saveToFile(file, this.currentlyLoadedNotices);
+			}
+	    	catch (UnsupportedEncodingException | FileNotFoundException | JAXBException exception) {
+	    		alertException(exception);
+			}
+	    }
     }
 
     @FXML
@@ -284,25 +345,6 @@ public class FXMLDocumentController {
 		this.toolsPreviewXmlMenuItem.setDisable(true);
 	}
 
-	private String marshallNotices(Notices notices) throws JAXBException, UnsupportedEncodingException {
-		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
-		final Marshaller marshaller = jaxbContext.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_ENCODING, "ISO-8859-1");
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-		marshaller.setProperty(CustomCharacterEscapeHandler.JAXB_CHARACTER_ESCAPE_HANDLER, new CustomCharacterEscapeHandler());
-		marshaller.marshal(notices, byteArrayOutputStream);
-		return NoticesHeader.HEADER + byteArrayOutputStream.toString("ISO-8859-1");
-	}
-
-	private Notices unmarshallNotices(InputStream inputStream) throws JAXBException {
-	    final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
-	    final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-	    final Notices noticesRoot = (Notices) unmarshaller.unmarshal(inputStream);
-	    return noticesRoot;
-	}
-
 	private FXMLLoader getSourceEditorLoader() {
 		final Class<? extends FXMLDocumentController> clazz = getClass();
 		final URL url = clazz.getResource(FXMLSourceEditorController.FXML_LOCATION);
@@ -324,6 +366,22 @@ public class FXMLDocumentController {
 		final ObservableList<Notice> observableNotices = FXCollections.observableList(notices);
 		this.noticesListView.setItems(observableNotices);
 	    this.leftPane.setDisable(false);
+	}
+
+	private XMLGregorianCalendar localDateToXmlGregorianCalendar(LocalDate localDate) throws DatatypeConfigurationException {
+		return DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(localDate.getYear(), localDate.getMonthValue()-1, localDate.getDayOfMonth()));
+	}
+
+	private String marshallNotices(Notices notices) throws JAXBException, UnsupportedEncodingException {
+		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
+		final Marshaller marshaller = jaxbContext.createMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_ENCODING, "ISO-8859-1");
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+		marshaller.setProperty(CustomCharacterEscapeHandler.JAXB_CHARACTER_ESCAPE_HANDLER, new CustomCharacterEscapeHandler());
+		marshaller.marshal(notices, byteArrayOutputStream);
+		return NoticesHeader.HEADER + byteArrayOutputStream.toString("ISO-8859-1");
 	}
 
 	private void openExistingFile() {
@@ -375,6 +433,14 @@ public class FXMLDocumentController {
 		}
 	}
 
+	private void saveToFile(File file, Notices notices) throws JAXBException, UnsupportedEncodingException, FileNotFoundException {
+		final FileOutputStream fileOutputStream = new FileOutputStream(file, false);
+		final String text = marshallNotices(notices);
+		try (final PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+			printWriter.println(text);
+		}
+	}
+
 	private void showEditSourceWindow(String title, HTMLEditor htmlEditor) throws IOException {
 		final FXMLLoader fxmlLoader = getSourceEditorLoader();
 		final Parent parent = fxmlLoader.load();
@@ -394,41 +460,53 @@ public class FXMLDocumentController {
 	    }
 	}
 
-	private void updateEditorPane(Notice notice) {
-        if (notice == null) {
-            clearEditorPane();
-        }
-        else {
-            this.rightPane.setDisable(false);
+	private Notices unmarshallNotices(InputStream inputStream) throws JAXBException {
+	    final JAXBContext jaxbContext = JAXBContext.newInstance(Notices.class);
+	    final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+	    final Notices noticesRoot = (Notices) unmarshaller.unmarshal(inputStream);
+	    return noticesRoot;
+	}
 
-            final Title title = notice.getTitle();
+	private void updateEditorPane(Notice notice) {
+	    if (notice == null) {
+	        clearEditorPane();
+	    }
+	    else {
+	        this.rightPane.setDisable(false);
+	
+	        final Title title = notice.getTitle();
 			final String englishTitle = title.getEnglish();
 			final String frenchTitle = title.getFrench();
 			this.englishTitleTextField.setText(englishTitle);
 			this.frenchTitleTextField.setText(frenchTitle);
-
-            final Text text = notice.getText();
+	
+	        final Text text = notice.getText();
 			final String englishText = text.getEnglish();
 			final String frenchText = text.getFrench();
 			this.englishTextHtmlEditor.setHtmlText(englishText);
 			this.frenchTextHtmlEditor.setHtmlText(frenchText);
-
-            final XMLGregorianCalendar effectiveDate = notice.getEffectiveDate();
-            final LocalDate effectiveLocalDate = LocalDate.of(effectiveDate.getYear(), effectiveDate.getMonth(), effectiveDate.getDay());
+	
+	        final XMLGregorianCalendar effectiveDate = notice.getEffectiveDate();
+	        final LocalDate effectiveLocalDate = LocalDate.of(effectiveDate.getYear(), effectiveDate.getMonth(), effectiveDate.getDay());
 			this.startDateDatePicker.setValue(effectiveLocalDate);
-
-            final XMLGregorianCalendar expiryDate = notice.getExpiryDate();
-            final LocalDate expiryLocalDate = LocalDate.of(expiryDate.getYear(), expiryDate.getMonth(), expiryDate.getDay());
+	
+	        final XMLGregorianCalendar expiryDate = notice.getExpiryDate();
+	        final LocalDate expiryLocalDate = LocalDate.of(expiryDate.getYear(), expiryDate.getMonth(), expiryDate.getDay());
 			this.endDateDatePicker.setValue(expiryLocalDate);
-
-            final XMLGregorianCalendar displayDate = notice.getDisplayDate();
-            final LocalDate displayLocaleDate = LocalDate.of(displayDate.getYear(), displayDate.getMonth(), displayDate.getDay());
+	
+	        final XMLGregorianCalendar displayDate = notice.getDisplayDate();
+	        final LocalDate displayLocaleDate = LocalDate.of(displayDate.getYear(), displayDate.getMonth(), displayDate.getDay());
 			this.displayedDateDatePicker.setValue(displayLocaleDate);
-
-            final XMLGregorianCalendar dateCreated = notice.getDateCreated();
-            final LocalDate createdLocalDate = LocalDate.of(dateCreated.getYear(), dateCreated.getMonth(), dateCreated.getDay());
+	
+	        final XMLGregorianCalendar dateCreated = notice.getDateCreated();
+	        final LocalDate createdLocalDate = LocalDate.of(dateCreated.getYear(), dateCreated.getMonth(), dateCreated.getDay());
 			this.creationDateDatePicker.setValue(createdLocalDate);
-        }
-    }
+	    }
+	}
+
+	private void updateNoticeList(Notice oldNotice) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
