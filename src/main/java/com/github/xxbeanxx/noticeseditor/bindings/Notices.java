@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
@@ -85,24 +86,24 @@ public class Notices {
 
   /**
    * Gets the value of the notice property.
-   * 
+   *
    * <p>
    * This accessor method returns a reference to the live list, not a snapshot. Therefore any
    * modification you make to the returned list will be present inside the JAXB object. This is why
    * there is not a <CODE>set</CODE> method for the notice property.
-   * 
+   *
    * <p>
    * For example, to add a new item, do as follows:
-   * 
+   *
    * <pre>
    * getNotice().add(newItem);
    * </pre>
-   * 
-   * 
+   *
+   *
    * <p>
    * Objects of the following type(s) are allowed in the list {@link Notices.Notice }
-   * 
-   * 
+   *
+   *
    */
   public List<Notices.Notice> getNotice() {
     if (this.notice == null) {
@@ -115,10 +116,10 @@ public class Notices {
   /**
    * <p>
    * Java class for anonymous complex type.
-   * 
+   *
    * <p>
    * The following schema fragment specifies the expected content contained within this class.
-   * 
+   *
    * <pre>
    * &lt;complexType>
    *   &lt;complexContent>
@@ -157,8 +158,8 @@ public class Notices {
    *   &lt;/complexContent>
    * &lt;/complexType>
    * </pre>
-   * 
-   * 
+   *
+   *
    */
   @XmlAccessorType(XmlAccessType.FIELD)
   @XmlType(name = "",
@@ -171,22 +172,26 @@ public class Notices {
     protected Notices.Notice.Text text;
     @XmlElement(name = "display-date", required = true)
     @XmlSchemaType(name = "date")
+    @XmlJavaTypeAdapter(CalendarAdapter.class)
     protected XMLGregorianCalendar displayDate;
     @XmlElement(name = "effective-date", required = true)
     @XmlSchemaType(name = "date")
+    @XmlJavaTypeAdapter(CalendarAdapter.class)
     protected XMLGregorianCalendar effectiveDate;
     @XmlElement(name = "expiry-date", required = true)
     @XmlSchemaType(name = "date")
+    @XmlJavaTypeAdapter(CalendarAdapter.class)
     protected XMLGregorianCalendar expiryDate;
     @XmlElement(name = "date-created", required = true)
     @XmlSchemaType(name = "date")
+    @XmlJavaTypeAdapter(CalendarAdapter.class)
     protected XMLGregorianCalendar dateCreated;
 
     /**
      * Gets the value of the title property.
-     * 
+     *
      * @return possible object is {@link Notices.Notice.Title }
-     * 
+     *
      */
     public Notices.Notice.Title getTitle() {
       return this.title;
@@ -194,9 +199,9 @@ public class Notices {
 
     /**
      * Sets the value of the title property.
-     * 
+     *
      * @param value allowed object is {@link Notices.Notice.Title }
-     * 
+     *
      */
     public void setTitle(Notices.Notice.Title value) {
       this.title = value;
@@ -204,9 +209,9 @@ public class Notices {
 
     /**
      * Gets the value of the text property.
-     * 
+     *
      * @return possible object is {@link Notices.Notice.Text }
-     * 
+     *
      */
     public Notices.Notice.Text getText() {
       return this.text;
@@ -214,9 +219,9 @@ public class Notices {
 
     /**
      * Sets the value of the text property.
-     * 
+     *
      * @param value allowed object is {@link Notices.Notice.Text }
-     * 
+     *
      */
     public void setText(Notices.Notice.Text value) {
       this.text = value;
@@ -224,9 +229,9 @@ public class Notices {
 
     /**
      * Gets the value of the displayDate property.
-     * 
+     *
      * @return possible object is {@link XMLGregorianCalendar }
-     * 
+     *
      */
     public XMLGregorianCalendar getDisplayDate() {
       return this.displayDate;
@@ -234,9 +239,9 @@ public class Notices {
 
     /**
      * Sets the value of the displayDate property.
-     * 
+     *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     * 
+     *
      */
     public void setDisplayDate(XMLGregorianCalendar value) {
       this.displayDate = value;
@@ -244,9 +249,9 @@ public class Notices {
 
     /**
      * Gets the value of the effectiveDate property.
-     * 
+     *
      * @return possible object is {@link XMLGregorianCalendar }
-     * 
+     *
      */
     public XMLGregorianCalendar getEffectiveDate() {
       return this.effectiveDate;
@@ -254,9 +259,9 @@ public class Notices {
 
     /**
      * Sets the value of the effectiveDate property.
-     * 
+     *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     * 
+     *
      */
     public void setEffectiveDate(XMLGregorianCalendar value) {
       this.effectiveDate = value;
@@ -264,9 +269,9 @@ public class Notices {
 
     /**
      * Gets the value of the expiryDate property.
-     * 
+     *
      * @return possible object is {@link XMLGregorianCalendar }
-     * 
+     *
      */
     public XMLGregorianCalendar getExpiryDate() {
       return this.expiryDate;
@@ -274,9 +279,9 @@ public class Notices {
 
     /**
      * Sets the value of the expiryDate property.
-     * 
+     *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     * 
+     *
      */
     public void setExpiryDate(XMLGregorianCalendar value) {
       this.expiryDate = value;
@@ -284,9 +289,9 @@ public class Notices {
 
     /**
      * Gets the value of the dateCreated property.
-     * 
+     *
      * @return possible object is {@link XMLGregorianCalendar }
-     * 
+     *
      */
     public XMLGregorianCalendar getDateCreated() {
       return this.dateCreated;
@@ -294,9 +299,9 @@ public class Notices {
 
     /**
      * Sets the value of the dateCreated property.
-     * 
+     *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     * 
+     *
      */
     public void setDateCreated(XMLGregorianCalendar value) {
       this.dateCreated = value;
@@ -306,10 +311,10 @@ public class Notices {
     /**
      * <p>
      * Java class for anonymous complex type.
-     * 
+     *
      * <p>
      * The following schema fragment specifies the expected content contained within this class.
-     * 
+     *
      * <pre>
      * &lt;complexType>
      *   &lt;complexContent>
@@ -322,23 +327,25 @@ public class Notices {
      *   &lt;/complexContent>
      * &lt;/complexType>
      * </pre>
-     * 
-     * 
+     *
+     *
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {"english", "french"})
     public static class Text {
 
       @XmlElement(required = true)
+      @XmlJavaTypeAdapter(StringAdapter.class)
       protected String english;
       @XmlElement(required = true)
+      @XmlJavaTypeAdapter(StringAdapter.class)
       protected String french;
 
       /**
        * Gets the value of the english property.
-       * 
+       *
        * @return possible object is {@link String }
-       * 
+       *
        */
       public String getEnglish() {
         return this.english;
@@ -346,9 +353,9 @@ public class Notices {
 
       /**
        * Sets the value of the english property.
-       * 
+       *
        * @param value allowed object is {@link String }
-       * 
+       *
        */
       public void setEnglish(String value) {
         this.english = value;
@@ -356,9 +363,9 @@ public class Notices {
 
       /**
        * Gets the value of the french property.
-       * 
+       *
        * @return possible object is {@link String }
-       * 
+       *
        */
       public String getFrench() {
         return this.french;
@@ -366,9 +373,9 @@ public class Notices {
 
       /**
        * Sets the value of the french property.
-       * 
+       *
        * @param value allowed object is {@link String }
-       * 
+       *
        */
       public void setFrench(String value) {
         this.french = value;
@@ -380,10 +387,10 @@ public class Notices {
     /**
      * <p>
      * Java class for anonymous complex type.
-     * 
+     *
      * <p>
      * The following schema fragment specifies the expected content contained within this class.
-     * 
+     *
      * <pre>
      * &lt;complexType>
      *   &lt;complexContent>
@@ -396,23 +403,25 @@ public class Notices {
      *   &lt;/complexContent>
      * &lt;/complexType>
      * </pre>
-     * 
-     * 
+     *
+     *
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {"english", "french"})
     public static class Title {
 
       @XmlElement(required = true)
+      @XmlJavaTypeAdapter(StringAdapter.class)
       protected String english;
       @XmlElement(required = true)
+      @XmlJavaTypeAdapter(StringAdapter.class)
       protected String french;
 
       /**
        * Gets the value of the english property.
-       * 
+       *
        * @return possible object is {@link String }
-       * 
+       *
        */
       public String getEnglish() {
         return this.english;
@@ -420,9 +429,9 @@ public class Notices {
 
       /**
        * Sets the value of the english property.
-       * 
+       *
        * @param value allowed object is {@link String }
-       * 
+       *
        */
       public void setEnglish(String value) {
         this.english = value;
@@ -430,9 +439,9 @@ public class Notices {
 
       /**
        * Gets the value of the french property.
-       * 
+       *
        * @return possible object is {@link String }
-       * 
+       *
        */
       public String getFrench() {
         return this.french;
@@ -440,9 +449,9 @@ public class Notices {
 
       /**
        * Sets the value of the french property.
-       * 
+       *
        * @param value allowed object is {@link String }
-       * 
+       *
        */
       public void setFrench(String value) {
         this.french = value;

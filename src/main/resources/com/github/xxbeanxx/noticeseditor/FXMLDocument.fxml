@@ -184,7 +184,7 @@
 														<Font name="System Bold" size="13.0" />
 													</font>
 												</Label>
-												<DatePicker fx:id="startDateDatePicker" />
+												<DatePicker fx:id="startDateDatePicker" editable="false" showWeekNumbers="true" />
 											</children>
 										</VBox>
 										<VBox layoutX="10.0" layoutY="10.0">
@@ -194,7 +194,7 @@
 														<Font name="System Bold" size="13.0" />
 													</font>
 												</Label>
-												<DatePicker fx:id="endDateDatePicker" />
+												<DatePicker fx:id="endDateDatePicker" editable="false" />
 											</children>
 										</VBox>
 										<VBox layoutX="10.0" layoutY="10.0">
@@ -204,7 +204,7 @@
 														<Font name="System Bold" size="13.0" />
 													</font>
 												</Label>
-												<DatePicker fx:id="displayedDateDatePicker" />
+												<DatePicker fx:id="displayedDateDatePicker" editable="false" />
 											</children>
 										</VBox>
 										<VBox layoutX="420.0" layoutY="10.0">
@@ -214,7 +214,7 @@
 														<Font name="System Bold" size="13.0" />
 													</font>
 												</Label>
-												<DatePicker fx:id="creationDateDatePicker" editable="false" />
+												<DatePicker fx:id="creationDateDatePicker" disable="true" editable="false" />
 											</children>
 										</VBox>
 									</children>
