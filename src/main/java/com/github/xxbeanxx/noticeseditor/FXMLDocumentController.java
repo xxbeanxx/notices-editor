@@ -32,6 +32,7 @@ import com.github.xxbeanxx.noticeseditor.bindings.Notices.Notice.Text;
 import com.github.xxbeanxx.noticeseditor.bindings.Notices.Notice.Title;
 import com.github.xxbeanxx.noticeseditor.bindings.NoticesHeader;
 import com.github.xxbeanxx.noticeseditor.controls.NoticeListCell;
+import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -49,6 +50,8 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
@@ -159,6 +162,29 @@ public class FXMLDocumentController {
 
   @FXML
   public void initialize() {
+    this.root.setOnDragOver(event -> {
+      final Dragboard dragboard = event.getDragboard();
+      if (dragboard.hasFiles() == true) {
+        event.acceptTransferModes(TransferMode.COPY);
+      }
+      else {
+        event.consume();
+      }
+    });
+    
+    this.root.setOnDragDropped(event -> {
+      final Dragboard dragboard = event.getDragboard();
+
+      if (dragboard.hasFiles() == true) {
+        for (File file : dragboard.getFiles()) {
+          openFile(file);
+        }
+      }
+
+      event.setDropCompleted(true);
+      event.consume();
+    });
+    
     this.noticesListView.setCellFactory((ListView<Notice> listView) -> {
       return new NoticeListCell();
     });
@@ -413,7 +439,7 @@ public class FXMLDocumentController {
     marshaller.setProperty(Marshaller.JAXB_ENCODING, "ISO-8859-1");
     marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
     marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-    marshaller.setProperty(CustomCharacterEscapeHandler.JAXB_CHARACTER_ESCAPE_HANDLER,
+    marshaller.setProperty(CharacterEscapeHandler.class.getName(),
         new CustomCharacterEscapeHandler());
     marshaller.marshal(notices, byteArrayOutputStream);
     return NoticesHeader.HEADER + byteArrayOutputStream.toString("ISO-8859-1");
@@ -430,21 +456,25 @@ public class FXMLDocumentController {
     final File file = fileChooser.showOpenDialog(window);
 
     if (file != null) {
-      try {
-        final FileInputStream inputStream = new FileInputStream(file);
-        this.currentlyLoadedNotices = unmarshallNotices(inputStream);
-        loadNotices(this.currentlyLoadedNotices.getNotice());
+      openFile(file);
+    }
+  }
 
-        this.fileCloseMenuItem.setDisable(false);
-        this.fileSaveMenuItem.setDisable(false);
-        this.fileSaveAsMenuItem.setDisable(false);
-        this.fileRevertMenuItem.setDisable(false);
-        this.toolsPreviewXmlMenuItem.setDisable(false);
+  private void openFile(final File file) {
+    try {
+      final FileInputStream inputStream = new FileInputStream(file);
+      this.currentlyLoadedNotices = unmarshallNotices(inputStream);
+      loadNotices(this.currentlyLoadedNotices.getNotice());
 
-        this.currentlyOpenFile = file;
-      } catch (final FileNotFoundException | JAXBException exception) {
-        handleException(exception);
-      }
+      this.fileCloseMenuItem.setDisable(false);
+      this.fileSaveMenuItem.setDisable(false);
+      this.fileSaveAsMenuItem.setDisable(false);
+      this.fileRevertMenuItem.setDisable(false);
+      this.toolsPreviewXmlMenuItem.setDisable(false);
+
+      this.currentlyOpenFile = file;
+    } catch (final FileNotFoundException | JAXBException exception) {
+      handleException(exception);
     }
   }
 

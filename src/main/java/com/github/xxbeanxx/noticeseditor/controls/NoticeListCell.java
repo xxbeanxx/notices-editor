@@ -1,7 +1,6 @@
 package com.github.xxbeanxx.noticeseditor.controls;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -19,7 +18,7 @@ import javafx.scene.control.Tooltip;
  */
 public class NoticeListCell extends ListCell<Notice> {
 
-  private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+  private final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG);
 
   @Override
   protected void updateItem(Notice notice, boolean empty) {
