@@ -17,7 +17,7 @@ public class NoticesEditor extends Application {
   @Override
   public void start(Stage stage) throws Exception {
     final Parent root = FXMLLoader
-        .load(getClass().getResource("/com/github/xxbeanxx/noticeseditor/FXMLDocument.fxml"));
+        .load(getClass().getResource("/com/github/xxbeanxx/noticeseditor/ui/FXMLDocument.fxml"));
     final Scene scene = new Scene(root);
     final InputStream inputStream = getClass().getResourceAsStream("/application-xml.png");
     final Image image = new Image(inputStream);

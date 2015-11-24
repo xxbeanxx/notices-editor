@@ -1,4 +1,4 @@
-package com.github.xxbeanxx.noticeseditor;
+package com.github.xxbeanxx.noticeseditor.ui;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

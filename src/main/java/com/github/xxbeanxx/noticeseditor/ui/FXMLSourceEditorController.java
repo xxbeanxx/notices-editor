@@ -1,4 +1,4 @@
-package com.github.xxbeanxx.noticeseditor;
+package com.github.xxbeanxx.noticeseditor.ui;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 public class FXMLSourceEditorController {
 
   public static final String FXML_LOCATION =
-      "/com/github/xxbeanxx/noticeseditor/FXMLSourceEditor.fxml";
+      "/com/github/xxbeanxx/noticeseditor/ui/FXMLSourceEditor.fxml";
 
   public enum ReturnValue {
     OK, CANCEL
