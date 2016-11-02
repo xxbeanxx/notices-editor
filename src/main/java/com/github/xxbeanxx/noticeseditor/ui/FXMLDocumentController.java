@@ -13,6 +13,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -24,6 +25,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.springframework.stereotype.Component;
 
 import com.github.xxbeanxx.noticeseditor.bindings.CustomCharacterEscapeHandler;
 import com.github.xxbeanxx.noticeseditor.bindings.Notices;
@@ -65,7 +67,8 @@ import javafx.stage.Window;
 /**
  * @author Greg Baker
  */
-public class FXMLDocumentController {
+@Component
+public class FXMLDocumentController extends AbstractFXMLController {
 
   private static final FileChooser.ExtensionFilter XML_EXTENSION_FILTER =
       new FileChooser.ExtensionFilter("Notices files (*.xml)", "*.xml");
@@ -160,8 +163,8 @@ public class FXMLDocumentController {
 
   private Notice currentlySelectedNotice;
 
-  @FXML
-  public void initialize() {
+  @Override
+  public void initialize(URL location, ResourceBundle resources) {
     this.root.setOnDragOver(event -> {
       final Dragboard dragboard = event.getDragboard();
       if (dragboard.hasFiles() == true) {
@@ -507,23 +510,24 @@ public class FXMLDocumentController {
   }
 
   private void showEditSourceWindow(String title, HTMLEditor htmlEditor) throws IOException {
-    final FXMLLoader fxmlLoader = getSourceEditorLoader();
-    final Parent parent = fxmlLoader.load();
-    final Stage stage = getSourceEditorStage(parent, title);
-    final FXMLSourceEditorController fxmlSourceEditorController = fxmlLoader.getController();
-    final String htmlText = htmlEditor.getHtmlText();
-    String cleanHtmlText = cleanHtml(htmlText);
-    fxmlSourceEditorController.setText(cleanHtmlText);
-
-    stage.showAndWait();
-
-    final FXMLSourceEditorController.ReturnValue returnValue =
-        fxmlSourceEditorController.getReturnValue();
-    if (returnValue == FXMLSourceEditorController.ReturnValue.OK) {
-      final String text = fxmlSourceEditorController.getText();
-      cleanHtmlText = cleanHtml(text);
-      htmlEditor.setHtmlText(cleanHtmlText);
-    }
+    super.springController.load(FXMLSourceEditorController.FXML_LOCATION);
+//    final FXMLLoader fxmlLoader = getSourceEditorLoader();
+//    final Parent parent = fxmlLoader.load();
+//    final Stage stage = getSourceEditorStage(parent, title);
+//    final FXMLSourceEditorController fxmlSourceEditorController = fxmlLoader.getController();
+//    final String htmlText = htmlEditor.getHtmlText();
+//    String cleanHtmlText = cleanHtml(htmlText);
+//    fxmlSourceEditorController.setText(cleanHtmlText);
+//
+//    stage.showAndWait();
+//
+//    final FXMLSourceEditorController.ReturnValue returnValue =
+//        fxmlSourceEditorController.getReturnValue();
+//    if (returnValue == FXMLSourceEditorController.ReturnValue.OK) {
+//      final String text = fxmlSourceEditorController.getText();
+//      cleanHtmlText = cleanHtml(text);
+//      htmlEditor.setHtmlText(cleanHtmlText);
+//    }
   }
 
   private Notices unmarshallNotices(InputStream inputStream) throws JAXBException {

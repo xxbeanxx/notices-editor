@@ -1,5 +1,10 @@
 package com.github.xxbeanxx.noticeseditor.ui;
 
+import java.net.URL;
+import java.util.ResourceBundle;
+
+import org.springframework.stereotype.Component;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -10,7 +15,8 @@ import javafx.stage.Stage;
 /**
  * @author Greg Baker
  */
-public class FXMLSourceEditorController {
+@Component
+public class FXMLSourceEditorController extends AbstractFXMLController {
 
   public static final String FXML_LOCATION =
       "/com/github/xxbeanxx/noticeseditor/ui/FXMLSourceEditor.fxml";
@@ -27,6 +33,9 @@ public class FXMLSourceEditorController {
   Button cancelButton;
   @FXML
   TextArea textArea;
+
+  @Override
+  public void initialize(URL location, ResourceBundle resources) {}
 
   @FXML
   public void cancelButtonAction(ActionEvent event) {
